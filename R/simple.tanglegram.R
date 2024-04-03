@@ -67,7 +67,7 @@ simple.tanglegram <- function (tree1, tree2,  column, value, t2_pad=0.3, x_hjust
 
   # Show tip-labels
   if (tiplab == T){
-    pp + geom_tiplab(aes(x), data=d2, hjust=x_hjust)
+    pp + ggplot2::geom_tiplab(aes(x), data=d2, hjust=x_hjust)
   } else {
     pp
   }
