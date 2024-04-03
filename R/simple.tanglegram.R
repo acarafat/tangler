@@ -1,7 +1,8 @@
 #' Simple Tangleggram
 #'
 #' A function that automatically draw tanglegram based on a specific value from a column in the meta
-#' @import ggtree, ggplot2
+#' @import ggtree
+#' @import ggplot2
 #'
 #' @param tree1 First tree as ggtree object. Will be represented in the left side tanglegram.
 #' @param tree2 Second tree as ggtree object. Will be represented in the right side of tanglegram.
