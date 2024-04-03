@@ -63,11 +63,11 @@ simple.tanglegram <- function (tree1, tree2,  column, value, t2_pad=0.3, x_hjust
   # Conditionally join the tips from both tree
   conditional_subset <- dd1[which(dd1[,col_name] == parsed_value), ]
 
-  pp <- pp + geom_line(aes(x, y, group=label), data=conditional_subset, color=l_color)
+  pp <- pp + ggplot2::geom_line(aes(x, y, group=label), data=conditional_subset, color=l_color)
 
   # Show tip-labels
   if (tiplab == T){
-    pp + ggplot2::geom_tiplab(aes(x), data=d2, hjust=x_hjust)
+    pp + ggtree::geom_tiplab(aes(x), data=d2, hjust=x_hjust)
   } else {
     pp
   }
