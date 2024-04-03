@@ -26,7 +26,7 @@ t2 <- read.tree("tree2.nwk")
 tree2 <- ggtree(t2) %<+% meta
 
 # Draw Tanglegram
-simple.tanglegram(tree1, tree2, column_of_interest, value_of_interest, t2_pad=1, t2_y_pos = 100, t2_y_scale=22, tiplab = T)
+simple.tanglegram(tree1, tree2, column_of_interest, value_in_column, t2_pad=1, t2_y_pos = 100, t2_y_scale=22, tiplab = T)
 ```
 
 ## Feature Request and Bug Reports
