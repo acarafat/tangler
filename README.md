@@ -1,6 +1,10 @@
 # TangleR
 Tanglegram is a representation of co-phylogeny where two phylogenetic trees are linked. This package offers simple function to draw beautiful tanglegram.
 
+## History
+I wrote a tutorial on how to create tanglegram on R in my website, which got some interest among peers: https://arftrhmn.net/how-to-make-cophylogeny/
+Due to many comments, I decided to release my codes as a generic package in R.
+
 ## Install from GitHub
 ```
 library("devtools")
