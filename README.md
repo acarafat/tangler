@@ -1,1 +1,5 @@
-things to do ...
+## Install from GitHub
+```
+library("devtools")
+install_github('acarafat/TangleR')
+```
