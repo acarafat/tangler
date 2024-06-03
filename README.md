@@ -31,8 +31,11 @@ t2 <- read.tree("tree2.nwk")
 tree2 <- ggtree(t2) %<+% meta
 
 # Draw Tanglegram
-simple.tanglegram(tree1, tree2, Genotype, Green, t2_pad=1, t2_y_pos = 100, t2_y_scale=22, tiplab = T)
+simple.tanglegram(tree1, tree2, Genotype, Green, tiplab = T)
 ```
+
+# Output
+![Example](example.png)
 
 ## Feature Request and Bug Reports
 Please use this GitHub repo's `Issues` :) 
