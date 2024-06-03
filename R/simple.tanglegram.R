@@ -52,7 +52,7 @@ simple.tanglegram <- function (tree1, tree2,  column, value, t2_pad=0.3, x_hjust
 
 
   # Draw cophylogeny
-  pp <- t1 + geom_tree(data=d2, layout = "dendrogram")
+  pp <- tree1 + geom_tree(data=d2, layout = "dendrogram")
 
   # Combine tree associated data.frames
   dd1 <- rbind(d1, d2)
