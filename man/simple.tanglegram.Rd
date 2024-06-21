@@ -10,7 +10,8 @@ simple.tanglegram(
   column,
   value,
   t2_pad = 0.3,
-  x_hjust = 2,
+  x_hjust = 1,
+  lab_pad = 2,
   l_color = "#009E73",
   tiplab = F,
   t2_y_pos = 0,
@@ -19,9 +20,9 @@ simple.tanglegram(
 )
 }
 \arguments{
-\item{tree1}{First tree as ggtree object. Will be represented in the left side tanglegram.}
+\item{tree1}{First tree as ggtree object. Will be represented in the left side tanglegram (Tree 1).}
 
-\item{tree2}{Second tree as ggtree object. Will be represented in the right side of tanglegram.}
+\item{tree2}{Second tree as ggtree object. Will be represented in the right side of tanglegram (Tree 2).}
 
 \item{column}{The column from meta data.frame associated with both trees which will be used to connect the tips.}
 
@@ -29,17 +30,19 @@ simple.tanglegram(
 
 \item{t2_pad}{Tree 2 padding. Change this to adjust position of Tree 2. Default 0.3.}
 
-\item{x_hjust}{hjust value for the tip-labels.}
+\item{x_hjust}{hjust value for the tip-labels of Tree 2.}
+
+\item{lab_pad}{Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 2.}
 
 \item{l_color}{Tanglegram line color. Default green.}
 
-\item{tiplab}{Boolean. Shows tip-labels of both trees. Default False.}
+\item{tiplab}{Boolean. Shows tip-labels of Tree 1. Default False. For showing tip-labels of Tree 1, add geom_tiplab() during defining the tree.}
 
-\item{t2_y_pos}{If tree2 is different size than tree1, then use this to adjust their relative positions.}
+\item{t2_y_pos}{If Tree 2 is different size than Tree 1, then use this to adjust their relative positions.}
 
-\item{t2_y_scale}{If tree2 is different size than tree1, then use this to adjust tree2 scale.}
+\item{t2_y_scale}{If Tree 2 is different size than Tree 1, then use this to adjust Tree 2 scale.}
 
-\item{t2_branch_scale}{If tree2 shows branch really large or small branch length compared to tree1, use this to adjust for aesthetics reason.}
+\item{t2_branch_scale}{If Tree 2 shows branch really large or small branch length compared to Tree 1, use this to adjust for aesthetics reason.}
 }
 \value{
 None

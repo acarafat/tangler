@@ -4,5 +4,6 @@
 
 #' @import ggplot2
 #' @import ggtree
+#' @import dplyr
 NULL
 #> NULL
