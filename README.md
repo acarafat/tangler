@@ -32,6 +32,9 @@ tree2 <- ggtree(t2) %<+% meta
 
 # Draw Tanglegram
 simple.tanglegram(tree1, tree2, Genotype, Green, tiplab = T)
+
+# Update the connecting line x-position so that it do not overlap with tip-labels.
+simple.tanglegram(tree1, tree2, Genotype, Green, tiplab = T, lab_pad = 3, x_hjust = 1)
 ```
 
 # Output
