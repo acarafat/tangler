@@ -88,5 +88,3 @@ simple.tanglegram <- function (tree1, tree2,  column, value, t2_pad=0.3, x_hjust
   }
   
 }
-  
-}
