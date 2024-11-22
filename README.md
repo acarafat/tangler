@@ -32,8 +32,19 @@ tree2 <- ggtree(t2) %<+% meta
 
 # Draw Tanglegram
 simple.tanglegram(tree1, tree2, Genotype, Green, tiplab = T)
+
+# Update the connecting line x-position so that it do not overlap with tip-labels.
+simple.tanglegram(tree1, tree2, Genotype, Green,
+                  tiplab = T, lab_pad = 3, x_hjust = 1)
 ```
 
+Now you can update the x-position of the lines' beginning and ending by `lab_pad`, which will introduce equidistant padding. `t2_tiplab_size` has been introduced to control Tree 2 tip labels. 
+
+```
+simple.tanglegram(t1, t2, sample_type, clinical, t2_pad = 0.5,
+                           tiplab = T, lab_pad = 0, x_hjust = 1, 
+                           t2_y_pos = 0, t2_y_scale = 1.5, t2_branch_scale = 0.3)
+```
 # Output
 ![Example](example.png)
 
