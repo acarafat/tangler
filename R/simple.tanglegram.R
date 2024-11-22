@@ -31,7 +31,10 @@
 #'
 #' @export
 
-simple.tanglegram <- function (tree1, tree2,  column, value, t2_pad=0.3, x_hjust=1, lab_pad = 2, l_color = '#009E73', tiplab=F, t2_y_pos=0,  t2_y_scale=1, t2_branch_scale=1) {
+simple.tanglegram <- function (tree1, tree2,  column, value,
+                               t2_pad=0.3, x_hjust=1, lab_pad = 2,
+                               l_color = NA, tiplab=F, t2_y_pos=0,
+                               t2_y_scale=1, t2_branch_scale=1, t2_tiplab_size=1, t2_tiplab_pad = 0) {
   # Update meta column variables for subsetting
   col_name <- deparse(substitute(column))
   parsed_value <- deparse(substitute(value))
@@ -47,13 +50,16 @@ simple.tanglegram <- function (tree1, tree2,  column, value, t2_pad=0.3, x_hjust
   d2$tree <-'t2'
 
   # Define x coordinate for tree 2
-  d2$x <- max(d2$x) - d2$x + max(d1$x) +  max(d1$x)*t2_pad
+  d2$x <- max(d2$x) - t2_pad*d2$x + max(d1$x)
   d2$y <- d2$y * t2_y_scale
   d2$y <- d2$y + t2_y_pos
 
+  tree1$data$x <- tree1$data$x + t2_pad*max(d1$x)
+  d1$x <- tree1$data$x
+
 
   # Draw cophylogeny
-  pp <- tree1 + geom_tree(data=d2, layout = "dendrogram")
+  pp <- tree1 + geom_tree(data=d2)
 
   # Combine tree associated data.frames
   dd1 <- rbind(d1, d2)
@@ -76,11 +82,16 @@ simple.tanglegram <- function (tree1, tree2,  column, value, t2_pad=0.3, x_hjust
     dplyr::ungroup()
 
 
-  pp <- pp + ggplot2::geom_line(aes(lab_x, y, group=label), data=conditional_subset, color=l_color)
+  if (is.na(l_color)) {
+    pp <- pp + new_scale_color() + ggplot2::geom_line(aes(x = lab_x, y = y, group = label, color = label), data = conditional_subset, show.legend = FALSE) +
+      scale_color_viridis_d(option="turbo")  # Use a color scale for discrete colors
+  } else {
+    pp <- pp + ggplot2::geom_line(aes(lab_x, y, group=label), data=conditional_subset, color=l_color, show.legend = FALSE)
+  }
 
   # Show tip-labels
   if (tiplab == T){
-    pp + ggtree::geom_tiplab(aes(x), data=d2, hjust=x_hjust)
+    pp + ggtree::geom_tiplab(aes(x = x - t2_tiplab_pad), size=t2_tiplab_size, data=d2, hjust=x_hjust)
   } else {
     pp
   }
