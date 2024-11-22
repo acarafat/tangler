@@ -12,11 +12,12 @@ simple.tanglegram(
   t2_pad = 0.3,
   x_hjust = 1,
   lab_pad = 2,
-  l_color = "#009E73",
+  l_color = NA,
   tiplab = F,
   t2_y_pos = 0,
   t2_y_scale = 1,
-  t2_branch_scale = 1
+  t2_tiplab_size = 1,
+  t2_tiplab_pad = 0
 )
 }
 \arguments{
@@ -34,7 +35,7 @@ simple.tanglegram(
 
 \item{lab_pad}{Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 2.}
 
-\item{l_color}{Tanglegram line color. Default green.}
+\item{l_color}{Tanglegram line color. If no color provided, random viridis color will be generated.}
 
 \item{tiplab}{Boolean. Shows tip-labels of Tree 1. Default False. For showing tip-labels of Tree 1, add geom_tiplab() during defining the tree.}
 
@@ -42,24 +43,29 @@ simple.tanglegram(
 
 \item{t2_y_scale}{If Tree 2 is different size than Tree 1, then use this to adjust Tree 2 scale.}
 
-\item{t2_branch_scale}{If Tree 2 shows branch really large or small branch length compared to Tree 1, use this to adjust for aesthetics reason.}
+\item{t2_tiplab_size}{Update Tree 2 tip label font-size. Default 1.}
+
+\item{t2_tiplab_pad}{Add spacing between Tree 2 tip label and Tree 2 tip ending.}
 }
 \value{
 None
 }
 \description{
-A function that automatically draw tanglegram based on a specific value from a column in the meta
+A function that automatically draw tanglegram based on a specific value from a column in the meta.
+The inputs are ggtree object.
 }
 \examples{
 
 meta=read.csv('tree_meta.csv', header=T) # Load meta
 t1 <- read.tree('tree1.nwk') # Load tree 1
+
 # Load tree 1 and use ggtree to annotate features
 tree1 <- ggtree(t1)   \%<+\% meta +
   geom_tippoint(aes(color=species))
 # Load tree 2
 t2 <- read.tree("tree2.nwk")
 tree2 <- ggtree(t2) \%<+\% meta
+
 simple.tanglegram(tree1, tree2, column_of_interest, value_of_interest, t2_pad=1, t2_y_pos = 100, t2_y_scale=22, tiplab = T)
 
 }

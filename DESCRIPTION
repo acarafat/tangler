@@ -1,11 +1,11 @@
 Package: tangler
 Type: Package
 Title: Create Simple Tanglegram in R
-Version: 0.1.9
+Version: 0.2.0
 Author: Arafat Rahman
 Maintainer: The package maintainer <ac.arafat@gmail.com>
 Description: Tanglegram is a representation of co-phylogeny where two phylogenetic trees are linked. This package leverage ggtree to make beautiful tanglegram.
 License: GNU GPL v3.0
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
