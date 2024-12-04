@@ -88,7 +88,7 @@ simple.tanglegram <- function (tree1, tree2,  column, value,
 
 
   if (is.na(l_color)) {
-    pp <- pp + new_scale_color() + ggplot2::geom_line(aes(x = lab_x, y = y, group = label, color = label), data = conditional_subset, show.legend = FALSE) +
+    pp <- pp + ggnewscale::new_scale_color() + ggplot2::geom_line(aes(x = lab_x, y = y, group = label, color = label), data = conditional_subset, show.legend = FALSE) +
       scale_color_viridis_d(option="turbo")  # Use a color scale for discrete colors
   } else {
     pp <- pp + ggplot2::geom_line(aes(lab_x, y, group=label), data=conditional_subset, color=l_color, show.legend = FALSE)
