@@ -39,7 +39,7 @@
 simple.tanglegram <- function (tree1, tree2,  column, value,
                                t2_pad=0.3, x_hjust=1, lab_pad = 2,
                                l_color = NA, tiplab=F, t2_y_pos=0,
-                               t2_y_scale=1, t2_tiplab_size=1, t2_tiplab_pad = 0) {
+                               t2_y_scale=1, t2_tiplab_size=3, t2_tiplab_pad = 0) {
   # Update meta column variables for subsetting
   col_name <- deparse(substitute(column))
   parsed_value <- deparse(substitute(value))
