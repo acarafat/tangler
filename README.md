@@ -18,6 +18,19 @@ install_github('acarafat/tangler')
 
 
 ## How to use it
+To begin with, you have to have two trees as `phylo` object. They have to share the tip labels (at least partially). Also, you have to have some meta-data where the first column with the tip-labels, and another column will be the trait(s) that you want to highlight.
+
+The meta-data can be in a csv file and may look like the following:
+
+| Isolate |	Genotype |
+|---|---|
+|A |	Green |
+|B |	Green |
+|C |	Green |
+|D |	Green |
+|E |	Red |
+|F |	Red |
+
 ```
 library(ggtree)
 library(tangler)
