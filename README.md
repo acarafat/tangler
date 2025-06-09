@@ -6,6 +6,17 @@ I wrote a tutorial on how to create tanglegram on R in my website, which got som
 Due to many comments, I decided to release my codes as a generic package in R.
 
 ## Install from GitHub
+
+Following dependencies must be preinstalled from Bioconductor:
+```
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("ggtree")
+BiocManager::install("phytools")
+BiocManager::install("ggnewscale")
+```
+
+Then, use `devtools` to install latest `tangler` release from GitHub:
 ```
 library("devtools")
 install_github('acarafat/tangler')
