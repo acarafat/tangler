@@ -16,7 +16,7 @@ simple.tanglegram(
   tiplab = F,
   t2_y_pos = 0,
   t2_y_scale = 1,
-  t2_tiplab_size = 1,
+  t2_tiplab_size = 3,
   t2_tiplab_pad = 0
 )
 }
@@ -39,9 +39,9 @@ simple.tanglegram(
 
 \item{tiplab}{Boolean. Shows tip-labels of Tree 1. Default False. For showing tip-labels of Tree 1, add geom_tiplab() during defining the tree.}
 
-\item{t2_y_pos}{If Tree 2 is different size than Tree 1, then use this to adjust their relative positions.}
+\item{t2_y_pos}{If Tree 2 is different size than Tree 1, then use this to adjust their relative vertical positions.}
 
-\item{t2_y_scale}{If Tree 2 is different size than Tree 1, then use this to adjust Tree 2 scale.}
+\item{t2_y_scale}{If Tree 2 is different size than Tree 1, then use this to adjust Tree 2 vertical scale.}
 
 \item{t2_tiplab_size}{Update Tree 2 tip label font-size. Default 1.}
 

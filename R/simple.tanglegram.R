@@ -12,8 +12,8 @@
 #' @param lab_pad Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 2.
 #' @param l_color Tanglegram line color. If no color provided, random viridis color will be generated.
 #' @param tiplab Boolean. Shows tip-labels of Tree 1. Default False. For showing tip-labels of Tree 1, add geom_tiplab() during defining the tree.
-#' @param t2_y_pos If Tree 2 is different size than Tree 1, then use this to adjust their relative positions.
-#' @param t2_y_scale If Tree 2 is different size than Tree 1, then use this to adjust Tree 2 scale.
+#' @param t2_y_pos If Tree 2 is different size than Tree 1, then use this to adjust their relative vertical positions.
+#' @param t2_y_scale If Tree 2 is different size than Tree 1, then use this to adjust Tree 2 vertical scale.
 #' @param t2_tiplab_size Update Tree 2 tip label font-size. Default 1.
 #' @param t2_tiplab_pad Add spacing between Tree 2 tip label and Tree 2 tip ending.
 #'
@@ -54,13 +54,12 @@ simple.tanglegram <- function (tree1, tree2,  column, value,
   d1$tree <-'t1'
   d2$tree <-'t2'
 
-  # Define x coordinate for tree 2
-  d2$x <- max(d2$x) - t2_pad*d2$x + max(d1$x)
-  d2$y <- d2$y * t2_y_scale
-  d2$y <- d2$y + t2_y_pos
-
-  tree1$data$x <- tree1$data$x + t2_pad*max(d1$x)
-  d1$x <- tree1$data$x
+  # Logic for rotating tree 2:
+  # 1. (max(d2$x) - d2$x) perfectly flips the tree so tips face left.
+  # 2. + max(d1$x) places it immediately to the right of Tree 1.
+  # 3. + t2_pad adds the horizontal gap between them.
+  d2$x <- (max(d2$x) - d2$x) + max(d1$x) + t2_pad
+  d2$y <- d2$y * t2_y_scale + t2_y_pos
 
 
   # Draw cophylogeny

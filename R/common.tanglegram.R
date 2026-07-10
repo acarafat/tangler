@@ -10,13 +10,13 @@
 #' @param tree2 Second tree as ggtree object. Will be represented in the right side of tanglegram (Tree 2).
 #' @param column The column from meta data.frame associated with both trees which will be used to connect the tips.
 #' @param sampletypecolors Named vector where names should correspond to the sample types, and the values are their associated colors.
-#' @param t2_pad Tree 2 padding. Change this to adjust position of Tree 2. Default 0.3.
-#' @param lab_pad Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 2.
+#' @param t2_pad Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.
+#' @param lab_pad Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 0.05.
 #' @param tiplab Boolean. Shows tip-labels of Tree 1. Default False. For showing tip-labels of Tree 1, add geom_tiplab() during defining the tree.
 #' @param t2_y_pos If Tree 2 is different size than Tree 1, then use this to adjust their relative positions.
 #' @param t2_y_scale If Tree 2 is different size than Tree 1, then use this to adjust Tree 2 scale.
-#' @param t2_tiplab_size Update Tree 2 tip label font-size. Default 1.
-#' @param t2_tiplab_pad Add spacing between Tree 2 tip label and Tree 2 tip ending.
+#' @param t2_tiplab_size Update Tree 2 tip label font-size. Default 3.
+#' @param t2_tiplab_pad Add spacing between Tree 2 tip label and Tree 2 tip ending. Default 0.
 #'
 #' @return None
 #'
@@ -40,33 +40,36 @@
 #' @export
 
 common.tanglegram <- function(tree1, tree2, column, sampletypecolors=NA,
-                              t2_pad = 0.3, t2_y_scale = 1, t2_y_pos = 0,
-                              lab_pad = 2, tiplab = FALSE, t2_tiplab_size = 1,
+                              t2_pad = 0.5, t2_y_scale = 1, t2_y_pos = 0,
+                              lab_pad = 0.05, tiplab = FALSE, t2_tiplab_size = 3,
                               t2_tiplab_pad = 0) {
-
+  
   # Extract tree data
   d1 <- tree1$data
   d2 <- tree2$data
-
+  
   # Update the associated variable
   d1$tree <- 't1'
   d2$tree <- 't2'
-
-  # Define x coordinate for tree 2
-  d2$x <- max(d2$x) - t2_pad*d2$x + max(d1$x)
+  
+  # Logic for rotating tree 2:
+  # 1. (max(d2$x) - d2$x) perfectly flips the tree so tips face left.
+  # 2. + max(d1$x) places it immediately to the right of Tree 1.
+  # 3. + t2_pad adds the horizontal gap between them.
+  d2$x <- (max(d2$x) - d2$x) + max(d1$x) + t2_pad
   d2$y <- d2$y * t2_y_scale
   d2$y <- d2$y + t2_y_pos
-
-  tree1$data$x <- tree1$data$x + t2_pad*max(d2$x)
-  d1$x <- tree1$data$x
-
+  
+  
   # Draw cophylogeny
-  pp <- tree1 + geom_tree(data=d2, layout = "dendrogram")
-
+  pp <- tree1 + geom_tree(data=d2, layout = "dendrogram") + 
+    geom_tippoint(data = d2, aes(x = x-0.005, y = y, color=.data[[column]])) +
+    geom_treescale(x=0.1, y=10)
+  
   # Merge tree data for tips only
   combined_data <- rbind(d1, d2) %>% filter(isTip == TRUE)
-
-  # Create lines connecting the tips and assign colors by the specified column
+  
+  # Create lines connecting the tips and assign padding
   combined_data <- combined_data %>%
     group_by(label) %>%
     mutate(
@@ -77,9 +80,10 @@ common.tanglegram <- function(tree1, tree2, column, sampletypecolors=NA,
       )
     ) %>%
     ungroup()
-
-  # Add connecting lines colored by the trait category using sampletypecolors
+  
+  # Add connecting lines colored by the trait category
   pp <- pp +
+    new_scale_color() +
     geom_line(
       aes(
         x = lab_x,
@@ -87,16 +91,18 @@ common.tanglegram <- function(tree1, tree2, column, sampletypecolors=NA,
         group = label,
         color = .data[[column]]
       ),
-      data = combined_data
+      data = combined_data, 
+      alpha = 0.4
     )
-
+  
+  # Apply custom or default colors
   if (missing(sampletypecolors) || is.null(sampletypecolors)) {
-    pp <- pp + scale_color_viridis_d(option="turbo")   # Use random colors
+    pp <- pp + scale_color_viridis_d(option="turbo")   
   } else {
-    pp <- pp + scale_color_manual(values = sampletypecolors)  # Use custom colors
+    pp <- pp + scale_color_manual(values = sampletypecolors) 
   }
-
-  # Optionally show tip labels
+  
+  # Optionally show tip labels for tree 2
   if (tiplab) {
     pp <- pp +
       ggtree::geom_tiplab(
@@ -106,6 +112,6 @@ common.tanglegram <- function(tree1, tree2, column, sampletypecolors=NA,
         hjust = 1
       )
   }
-
+  
   return(pp)
 }

@@ -9,12 +9,12 @@ common.tanglegram(
   tree2,
   column,
   sampletypecolors = NA,
-  t2_pad = 0.3,
+  t2_pad = 0.5,
   t2_y_scale = 1,
   t2_y_pos = 0,
-  lab_pad = 2,
+  lab_pad = 0.05,
   tiplab = FALSE,
-  t2_tiplab_size = 1,
+  t2_tiplab_size = 3,
   t2_tiplab_pad = 0
 )
 }
@@ -27,19 +27,19 @@ common.tanglegram(
 
 \item{sampletypecolors}{Named vector where names should correspond to the sample types, and the values are their associated colors.}
 
-\item{t2_pad}{Tree 2 padding. Change this to adjust position of Tree 2. Default 0.3.}
+\item{t2_pad}{Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.}
 
 \item{t2_y_scale}{If Tree 2 is different size than Tree 1, then use this to adjust Tree 2 scale.}
 
 \item{t2_y_pos}{If Tree 2 is different size than Tree 1, then use this to adjust their relative positions.}
 
-\item{lab_pad}{Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 2.}
+\item{lab_pad}{Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 0.05.}
 
 \item{tiplab}{Boolean. Shows tip-labels of Tree 1. Default False. For showing tip-labels of Tree 1, add geom_tiplab() during defining the tree.}
 
-\item{t2_tiplab_size}{Update Tree 2 tip label font-size. Default 1.}
+\item{t2_tiplab_size}{Update Tree 2 tip label font-size. Default 3.}
 
-\item{t2_tiplab_pad}{Add spacing between Tree 2 tip label and Tree 2 tip ending.}
+\item{t2_tiplab_pad}{Add spacing between Tree 2 tip label and Tree 2 tip ending. Default 0.}
 }
 \value{
 None

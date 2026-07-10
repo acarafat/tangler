@@ -1,0 +1,74 @@
+---
+title: "Introduction to tangler"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to tangler}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Welcome to tangler
+
+`tangler` is an R package designed to create visually appealing tanglegrams using the `ggtree` and `ggplot2` ecosystem. This package primarily supports two and three phylogenies to visualize host-symbiont relationships, co-evolution, or simply comparing hierarchical clusterings.
+
+### Getting Started
+
+Load the necessary libraries:
+
+```{r setup, eval=FALSE}
+library(ggplot2)
+library(ggtree)
+library(dplyr)
+library(tangler) 
+```
+
+### Main Functions
+
+1.  **`common.tanglegram`**: Connects tips between two trees using a common categorical metadata column.
+2.  **`simple.tanglegram`**: Connects tips between two trees based on a specific matching value within a metadata column.
+3.  **`triple.tanglegram`**: Extends the capabilities of `common.tanglegram` to three phylogenies, allowing for the visualization of tripartite associations.
+
+### Toy Example
+
+Here's a quick example to generate random trees and plot a triple tanglegram:
+
+```{r, eval=FALSE}
+library(ape)
+
+# Create 3 simple trees
+set.seed(42)
+t1 <- rtree(10)
+t2 <- rtree(10)
+t3 <- rtree(10)
+
+t1$tip.label <- paste0("t", 1:10)
+t2$tip.label <- paste0("t", 1:10)
+t3$tip.label <- paste0("t", 1:10)
+
+# Create metadata
+meta <- data.frame(
+  label = paste0("t", 1:10),
+  category = sample(c("Group 1", "Group 2", "Group 3"), 10, replace = TRUE)
+)
+
+# Convert to ggtree objects and join metadata
+tree1 <- ggtree(t1) %<+% meta
+tree2 <- ggtree(t2) %<+% meta
+tree3 <- ggtree(t3) %<+% meta
+
+# 1. Simple Tanglegram (Filters for "Group 1")
+simple.tanglegram(tree1, tree2, column = category, value = "Group 1")
+
+# 2. Common Tanglegram
+common.tanglegram(tree1, tree2, column = "category", t2_pad = 0.5)
+
+# 3. Triple Tanglegram
+triple.tanglegram(tree1, tree2, tree3, column = "category", t2_pad = 0.5, t3_pad = 0.5)
+```
