@@ -7,9 +7,9 @@
 #' @param tree2 Second tree as ggtree object. Will be represented in the right side of tanglegram (Tree 2).
 #' @param column The column from meta data.frame associated with both trees which will be used to connect the tips.
 #' @param value The value of the meta data.frame column defined that will be used to connect the tips.
-#' @param t2_pad Tree 2 padding. Change this to adjust position of Tree 2. Default 0.3.
+#' @param t2_pad Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.
 #' @param x_hjust hjust value for the tip-labels of Tree 2.
-#' @param lab_pad Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 2.
+#' @param lab_pad Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 0.05.
 #' @param l_color Tanglegram line color. If no color provided, random viridis color will be generated.
 #' @param tiplab Boolean. Shows tip-labels of Tree 1. Default False. For showing tip-labels of Tree 1, add geom_tiplab() during defining the tree.
 #' @param t2_y_pos If Tree 2 is different size than Tree 1, then use this to adjust their relative vertical positions.
@@ -37,12 +37,12 @@
 
 
 simple.tanglegram <- function (tree1, tree2,  column, value,
-                               t2_pad=0.3, x_hjust=1, lab_pad = 2,
+                               t2_pad=0.5, x_hjust=1, lab_pad = 0.05,
                                l_color = NA, tiplab=F, t2_y_pos=0,
                                t2_y_scale=1, t2_tiplab_size=3, t2_tiplab_pad = 0) {
   # Update meta column variables for subsetting
-  col_name <- deparse(substitute(column))
-  parsed_value <- deparse(substitute(value))
+  col_name <- as.character(substitute(column))
+  parsed_value <- as.character(substitute(value))
 
 
   # Extract tree data
@@ -73,24 +73,22 @@ simple.tanglegram <- function (tree1, tree2,  column, value,
   conditional_subset <- dd1[which(dd1[,col_name] == parsed_value), ]
   conditional_subset$lab_x <- conditional_subset$x
 
-  # Update label x position
+  # Update label x position using tree logic
   conditional_subset <- conditional_subset %>%
-    dplyr::group_by(label) %>%
     dplyr::mutate(
       lab_x = case_when(
-        lab_x == min(lab_x) ~ lab_x + lab_pad,
-        lab_x == max(lab_x) ~ lab_x - lab_pad,
-        TRUE ~ lab_x
+        tree == "t1" ~ x + lab_pad,
+        tree == "t2" ~ x - lab_pad,
+        TRUE ~ x
       )
-    ) %>%
-    dplyr::ungroup()
+    )
 
 
   if (is.na(l_color)) {
     pp <- pp + ggnewscale::new_scale_color() + ggplot2::geom_line(aes(x = lab_x, y = y, group = label, color = label), data = conditional_subset, show.legend = FALSE) +
       scale_color_viridis_d(option="turbo")  # Use a color scale for discrete colors
   } else {
-    pp <- pp + ggplot2::geom_line(aes(lab_x, y, group=label), data=conditional_subset, color=l_color, show.legend = FALSE)
+    pp <- pp + ggplot2::geom_line(aes(x = lab_x, y = y, group=label), data=conditional_subset, color=l_color, show.legend = FALSE)
   }
 
   # Show tip-labels

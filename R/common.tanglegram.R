@@ -44,6 +44,9 @@ common.tanglegram <- function(tree1, tree2, column, sampletypecolors=NA,
                               lab_pad = 0.05, tiplab = FALSE, t2_tiplab_size = 3,
                               t2_tiplab_pad = 0) {
   
+  # Resolve column handling
+  column <- as.character(substitute(column))
+  
   # Extract tree data
   d1 <- tree1$data
   d2 <- tree2$data
@@ -83,7 +86,7 @@ common.tanglegram <- function(tree1, tree2, column, sampletypecolors=NA,
   
   # Add connecting lines colored by the trait category
   pp <- pp +
-    new_scale_color() +
+    ggnewscale::new_scale_color() +
     geom_line(
       aes(
         x = lab_x,

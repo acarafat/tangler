@@ -9,9 +9,9 @@ simple.tanglegram(
   tree2,
   column,
   value,
-  t2_pad = 0.3,
+  t2_pad = 0.5,
   x_hjust = 1,
-  lab_pad = 2,
+  lab_pad = 0.05,
   l_color = NA,
   tiplab = F,
   t2_y_pos = 0,
@@ -29,11 +29,11 @@ simple.tanglegram(
 
 \item{value}{The value of the meta data.frame column defined that will be used to connect the tips.}
 
-\item{t2_pad}{Tree 2 padding. Change this to adjust position of Tree 2. Default 0.3.}
+\item{t2_pad}{Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.}
 
 \item{x_hjust}{hjust value for the tip-labels of Tree 2.}
 
-\item{lab_pad}{Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 2.}
+\item{lab_pad}{Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 0.05.}
 
 \item{l_color}{Tanglegram line color. If no color provided, random viridis color will be generated.}
 

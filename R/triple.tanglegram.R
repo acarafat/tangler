@@ -24,6 +24,9 @@ triple.tanglegram <- function(tree1, tree2, tree3, column, sampletypecolors=NA,
                               t3_y_scale = 1, t3_y_pos = 0,
                               lab_pad = 0.05) {
   
+  # Resolve column handling
+  column <- as.character(substitute(column))
+  
   # Extract tree data
   d1 <- tree1$data
   d2 <- tree2$data
@@ -67,7 +70,7 @@ triple.tanglegram <- function(tree1, tree2, tree3, column, sampletypecolors=NA,
   # Add connecting lines colored by the trait category
   # geom_line automatically connects t1 -> t2 -> t3 based on the x-coordinates
   pp <- pp +
-    new_scale_color() +
+    ggnewscale::new_scale_color() +
     geom_line(
       aes(
         x = lab_x,
