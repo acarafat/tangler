@@ -66,8 +66,7 @@ common.tanglegram <- function(tree1, tree2, column, sampletypecolors=NA,
   
   # Draw cophylogeny
   pp <- tree1 + geom_tree(data=d2, layout = "dendrogram") + 
-    geom_tippoint(data = d2, aes(x = x-0.005, y = y, color=.data[[column]])) +
-    geom_treescale(x=0.1, y=10)
+    geom_tippoint(data = d2, aes(x = x-0.005, y = y, color=.data[[column]]))
   
   # Merge tree data for tips only
   combined_data <- rbind(d1, d2) %>% filter(isTip == TRUE)
