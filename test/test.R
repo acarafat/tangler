@@ -8,54 +8,70 @@ source("../R/common.tanglegram.R")
 source("../R/simple.tanglegram.R")
 source("../R/triple.tanglegram.R")
 
+# 1. Create dummy trees
 set.seed(42)
-t1 <- phangorn::midpoint(ape::rtree(20))
-t2 <- phangorn::midpoint(ape::rtree(20))
-t3 <- phangorn::midpoint(ape::rtree(20))
+library(ape)
+t1 <- rtree(10)
+t2 <- rtree(10)
+t3 <- rtree(10)
 
-# Ensure the tip labels match between both trees
-t2$tip.label <- t1$tip.label
-t3$tip.label <- t1$tip.label
+t1$tip.label <- paste0("t", 1:10)
+t2$tip.label <- paste0("t", 1:10)
+t3$tip.label <- paste0("t", 1:10)
 
-# Create a dummy metadata frame matching the tip labels
+# 2. Create metadata with categorical and tip-coloring columns
 meta <- data.frame(
-  label = t1$tip.label,
-  ani.spp = as.character(sample(1:5, 20, replace = TRUE)),
-  host = sample(c("Host_X", "Host_Y", "Host_Z"), 20, replace = TRUE),
-  plasmid.type = sample(c("Type_A", "Type_B", "Type_C"), 20, replace = TRUE)
+  label = paste0("t", 1:10),
+  category = sample(c("Group 1", "Group 2", "Group 3"), 10, replace = TRUE),
+  tip_category = sample(c("Type A", "Type B"), 10, replace = TRUE),
+  location = sample(c("North", "South", "East", "West"), 10, replace = TRUE)
 )
 
-# Rotate the internal nodes so that tips of trees are aligned
+# 3. Pre-align Tip Orders (Untangling)
 rotated_trees <- pre.rotate(t1, t2)
 t1 <- rotated_trees[[1]]
 t2 <- rotated_trees[[2]]
 
-# Annotate Trees, make sure to set ladderize=F
-tree1 <- ggtree(t1, ladderize = F) %<+% meta + geom_tiplab(aes(x = x + 0.2))
-tree2 <- ggtree(t2, ladderize = F) %<+% meta + geom_tiplab(aes(x = x - 0.2))
-tree3 <- ggtree(t3, ladderize = F) %<+% meta + geom_tiplab(aes(x = x - 0.2))
+# 4. Convert to annotated ggtree objects
+tree1 <- ggtree(t1, ladderize = FALSE) %<+% meta
+tree2 <- ggtree(t2, ladderize = FALSE) %<+% meta
+tree3 <- ggtree(t3, ladderize = FALSE) %<+% meta
 
-# Tanglegram, single value visualization
+tree1_labeled <- tree1 + geom_tiplab(aes(x = x + 0.1))
+tree2_labeled <- tree2 + geom_tiplab(aes(x = x - 0.1), hjust = 1)
+tree3_labeled <- tree3 + geom_tiplab(aes(x = x - 0.1), hjust = 1)
+
 print("Testing simple.tanglegram...")
-p1 <- simple.tanglegram(tree1, tree2,
-  column = plasmid.type, value = "Type_A", tip_column = ani.spp,
-  t2_pad = 0.8, tiplab = TRUE, lab_pad = 0.3, x_hjust = 1, t2_tiplab_size = 3
+p1 <- simple.tanglegram(
+  tree1_labeled, tree2, 
+  column = category, 
+  value = "Group 1", 
+  tip_column = location,
+  tiplab = TRUE, 
+  t2_pad = 1, 
+  lab_pad = 0.5, 
+  t2_tiplab_pad = 0.1
 )
 
-# Common tanglegram for both traits
 print("Testing common.tanglegram...")
-p2 <- common.tanglegram(tree1, tree2,
-  column = "host", tip_column = "plasmid.type",
-  sampletypecolors = c("Host_X" = "green4", "Host_Y" = "red", "Host_Z" = "blue"),
-  t2_pad = 0.8, tiplab = TRUE, lab_pad = 0.3, t2_tiplab_size = 3
+p2 <- common.tanglegram(
+  tree1_labeled, tree2, 
+  column = "category", 
+  tip_column = "location",
+  tiplab = TRUE, 
+  t2_pad = 1, 
+  lab_pad = 0.5, 
+  t2_tiplab_pad = 0.1
 )
 
-# Triple tanglegram
 print("Testing triple.tanglegram...")
-p3 <- triple.tanglegram(tree1, tree2, tree3,
-  column = "host", tip_column = "ani.spp",
-  sampletypecolors = c("Host_X" = "green4", "Host_Y" = "red", "Host_Z" = "blue"),
-  t2_pad = 0.8, t3_pad = 0.8, lab_pad = 0.3
+p3 <- triple.tanglegram(
+  tree1_labeled, tree2_labeled, tree3_labeled, 
+  column = "category", 
+  tip_column = "location",
+  t2_pad = 1, 
+  t3_pad = 1, 
+  lab_pad = 0.5
 )
 
 ggsave("../test_simple.png", p1)

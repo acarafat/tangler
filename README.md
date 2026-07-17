@@ -51,97 +51,78 @@ library(tangler)
 
 # 1. Create dummy trees
 set.seed(42)
-t1 <- phangorn::midpoint(ape::rtree(20))
-t2 <- phangorn::midpoint(ape::rtree(20))
-t3 <- phangorn::midpoint(ape::rtree(20))
+library(ape)
+t1 <- rtree(10)
+t2 <- rtree(10)
 
-# Ensure the tip labels match across all trees
-t2$tip.label <- t1$tip.label
-t3$tip.label <- t1$tip.label
+t1$tip.label <- paste0("t", 1:10)
+t2$tip.label <- paste0("t", 1:10)
 
 # 2. Create metadata with categorical and tip-coloring columns
 meta <- data.frame(
-  label = t1$tip.label,
-  host = sample(c("Host_X", "Host_Y", "Host_Z"), 20, replace = TRUE),
-  plasmid.type = sample(c("Type_A", "Type_B", "Type_C"), 20, replace = TRUE),
-  ani.spp = as.character(sample(1:5, 20, replace = TRUE))
+  label = paste0("t", 1:10),
+  category = sample(c("Group 1", "Group 2", "Group 3"), 10, replace = TRUE),
+  location = sample(c("North", "South", "East", "West"), 10, replace = TRUE)
 )
 
-# 3. Pre-align Tip Orders (Untangling)
-# To minimize crossed vertical lines, rotate the internal nodes before building the ggtree objects.
-rotated_trees <- pre.rotate(t1, t2)
-t1 <- rotated_trees[[1]]
-t2 <- rotated_trees[[2]]
+# 3. Convert to annotated ggtree objects
+tree1_unrot <- ggtree(t1) %<+% meta
+tree2_unrot <- ggtree(t2) %<+% meta
 
-# 4. Convert to annotated ggtree objects
-# Note: Make sure to set ladderize = FALSE so ggtree respects the rotation layout
-tree1 <- ggtree(t1, ladderize = FALSE) %<+% meta + geom_tiplab(aes(x = x + 0.2))
-tree2 <- ggtree(t2, ladderize = FALSE) %<+% meta + geom_tiplab(aes(x = x - 0.2))
-tree3 <- ggtree(t3, ladderize = FALSE) %<+% meta + geom_tiplab(aes(x = x - 0.2))
+tree1_unrot_labeled <- tree1_unrot + geom_tiplab(aes(x = x + 0.1))
 ```
 
-### 1. Drawing a Tanglegram for a Specific Trait
-If you only want to highlight lines connecting tips matching one specific trait value, use `simple.tanglegram`:
+### Drawing a Tanglegram (Before Rotation)
+
+Without `pre.rotate`, you often get many crossed lines:
 
 ```R
-# Draw tanglegram highlighting the 'Type_A' plasmid type
-simple.tanglegram(
-  tree1, tree2, 
-  column = plasmid.type, 
-  value = "Type_A", 
-  tip_column = ani.spp,
-  tiplab = TRUE, 
-  t2_pad = 1, 
-  lab_pad = 0.5, 
-  t2_tiplab_pad = 0.1, 
-  x_hjust = 1, 
-  t2_tiplab_size = 3
-)
-```
-
-![Simple Tanglegram](test_simple.png)
-
----
-
-### 2. Coloring Lines by Categorical Groups
-If you want to view links for all tips, colored dynamically by their category, use `common.tanglegram`:
-
-```R
-# Draw tanglegram coloring connecting lines by 'host' category
+# Draw tanglegram coloring connecting lines by 'category'
 common.tanglegram(
-  tree1, tree2, 
-  column = "host", 
-  tip_column = "plasmid.type",
-  sampletypecolors = c("Host_X" = "green4", "Host_Y" = "red", "Host_Z" = "blue"),
+  tree1_unrot_labeled, tree2_unrot, 
+  column = "category", 
+  tip_column = "location",
   tiplab = TRUE, 
   t2_pad = 1, 
   lab_pad = 0.5, 
-  t2_tiplab_pad = 0.1, 
-  t2_tiplab_size = 3
+  t2_tiplab_pad = 0.1
 )
 ```
 
-![Common Tanglegram](test_common.png)
+![Common Tanglegram (Unrotated)](test_common_unrotated.png)
 
----
+### Untangling with pre.rotate
 
-### 3. Tripartite Tanglegrams (`triple.tanglegram`)
-For visualizing tripartite relations spanning three trees (e.g., Tree 1 <-> Tree 2 <-> Tree 3), use `triple.tanglegram`:
+To minimize crossed vertical lines, rotate the internal nodes *before* building the `ggtree` objects.
 
 ```R
-# Render Triple Tanglegram
-triple.tanglegram(
-  tree1, tree2, tree3, 
-  column = "host", 
-  tip_column = "ani.spp",
-  sampletypecolors = c("Host_X" = "green4", "Host_Y" = "red", "Host_Z" = "blue"),
+# 1. Pre-align Tip Orders
+rotated_trees <- pre.rotate(t1, t2)
+rot_t1 <- rotated_trees[[1]]
+rot_t2 <- rotated_trees[[2]]
+
+# 2. Convert to annotated ggtree objects
+# Note: Make sure to set ladderize = FALSE so ggtree respects the rotation layout
+rot_tree1 <- ggtree(rot_t1, ladderize = FALSE) %<+% meta
+rot_tree2 <- ggtree(rot_t2, ladderize = FALSE) %<+% meta
+
+rot_tree1_labeled <- rot_tree1 + geom_tiplab(aes(x = x + 0.1))
+
+# 3. Draw the tanglegram with rotated trees
+common.tanglegram(
+  rot_tree1_labeled, rot_tree2, 
+  column = "category", 
+  tip_column = "location",
+  tiplab = TRUE, 
   t2_pad = 1, 
-  t3_pad = 1, 
-  lab_pad = 0.5
+  lab_pad = 0.5, 
+  t2_tiplab_pad = 0.1
 )
 ```
 
-![Triple Tanglegram](test_triple.png)
+![Common Tanglegram (Rotated)](test_common.png)
+
+> **Note:** For more advanced examples including filtering by specific traits (`simple.tanglegram`), tripartite tanglegrams featuring three trees (`triple.tanglegram`), and more, please refer to the package vignette (`vignette("tangler-vignette")`).
 
 ---
 
