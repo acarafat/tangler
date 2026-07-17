@@ -36,13 +36,34 @@
 #' @export
 
 
-simple.tanglegram <- function (tree1, tree2,  column, value,
-                               t2_pad=0.5, x_hjust=1, lab_pad = 0.05,
+simple.tanglegram <- function (tree1, tree2,  column, value, tip_column,
+                               t2_pad=0.5, x_hjust=1, lab_pad = 0.05, text_width_factor = NULL,
                                l_color = NA, tiplab=F, t2_y_pos=0,
                                t2_y_scale=1, t2_tiplab_size=3, t2_tiplab_pad = 0) {
+  # Remove treescales from the trees
+  remove_treescale <- function(tree) {
+    tree$layers <- lapply(tree$layers, function(l) {
+      if (inherits(l$stat, "StatTreeScaleLine") || inherits(l$stat, "StatTreeScaleText")) {
+        return(NULL)
+      }
+      return(l)
+    })
+    tree$layers <- Filter(Negate(is.null), tree$layers)
+    return(tree)
+  }
+  
+  tree1 <- remove_treescale(tree1)
+  tree2 <- remove_treescale(tree2)
+
   # Update meta column variables for subsetting
   col_name <- as.character(substitute(column))
   parsed_value <- as.character(substitute(value))
+
+  if (missing(tip_column)) {
+    tip_col_name <- col_name
+  } else {
+    tip_col_name <- as.character(substitute(tip_column))
+  }
 
 
   # Extract tree data
@@ -63,7 +84,10 @@ simple.tanglegram <- function (tree1, tree2,  column, value,
 
 
   # Draw cophylogeny
-  pp <- tree1 + geom_tree(data=d2)
+  pp <- tree1 + 
+    geom_tippoint(aes(x = x, y = y, color=.data[[tip_col_name]])) +
+    geom_tree(data=d2) +
+    geom_tippoint(data=d2, aes(x = x - 0.005, y = y, color=.data[[tip_col_name]]))
 
   # Combine tree associated data.frames
   dd1 <- rbind(d1, d2)
@@ -73,20 +97,23 @@ simple.tanglegram <- function (tree1, tree2,  column, value,
   conditional_subset <- dd1[which(dd1[,col_name] == parsed_value), ]
   conditional_subset$lab_x <- conditional_subset$x
 
+  if (is.null(text_width_factor)) {
+    text_width_factor <- max(d1$x, na.rm=TRUE) * 0.008
+  }
+
   # Update label x position using tree logic
   conditional_subset <- conditional_subset %>%
     dplyr::mutate(
       lab_x = case_when(
-        tree == "t1" ~ x + lab_pad,
-        tree == "t2" ~ x - lab_pad,
+        tree == "t1" ~ x + lab_pad + (nchar(label) * text_width_factor),
+        tree == "t2" ~ x - lab_pad - (nchar(label) * text_width_factor),
         TRUE ~ x
       )
     )
 
 
   if (is.na(l_color)) {
-    pp <- pp + ggnewscale::new_scale_color() + ggplot2::geom_line(aes(x = lab_x, y = y, group = label, color = label), data = conditional_subset, show.legend = FALSE) +
-      scale_color_viridis_d(option="turbo")  # Use a color scale for discrete colors
+    pp <- pp + ggplot2::geom_line(aes(x = lab_x, y = y, group = label), data = conditional_subset, color = "darkgrey", show.legend = FALSE)
   } else {
     pp <- pp + ggplot2::geom_line(aes(x = lab_x, y = y, group=label), data=conditional_subset, color=l_color, show.legend = FALSE)
   }

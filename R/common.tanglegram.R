@@ -39,13 +39,34 @@
 #'
 #' @export
 
-common.tanglegram <- function(tree1, tree2, column, sampletypecolors=NA,
+common.tanglegram <- function(tree1, tree2, column, tip_column, sampletypecolors=NA,
                               t2_pad = 0.5, t2_y_scale = 1, t2_y_pos = 0,
-                              lab_pad = 0.05, tiplab = FALSE, t2_tiplab_size = 3,
+                              lab_pad = 0.05, text_width_factor = NULL, tiplab = FALSE, t2_tiplab_size = 3,
                               t2_tiplab_pad = 0) {
+  
+  # Remove treescales from the trees
+  remove_treescale <- function(tree) {
+    tree$layers <- lapply(tree$layers, function(l) {
+      if (inherits(l$stat, "StatTreeScaleLine") || inherits(l$stat, "StatTreeScaleText")) {
+        return(NULL)
+      }
+      return(l)
+    })
+    tree$layers <- Filter(Negate(is.null), tree$layers)
+    return(tree)
+  }
+  
+  tree1 <- remove_treescale(tree1)
+  tree2 <- remove_treescale(tree2)
   
   # Resolve column handling
   column <- as.character(substitute(column))
+  
+  if (missing(tip_column)) {
+    tip_col_name <- column
+  } else {
+    tip_col_name <- as.character(substitute(tip_column))
+  }
   
   # Extract tree data
   d1 <- tree1$data
@@ -65,19 +86,25 @@ common.tanglegram <- function(tree1, tree2, column, sampletypecolors=NA,
   
   
   # Draw cophylogeny
-  pp <- tree1 + geom_tree(data=d2, layout = "dendrogram") + 
-    geom_tippoint(data = d2, aes(x = x-0.005, y = y, color=.data[[column]]))
+  pp <- tree1 + 
+    geom_tippoint(aes(x = x, y = y, color=.data[[tip_col_name]])) +
+    geom_tree(data=d2, layout = "dendrogram") + 
+    geom_tippoint(data = d2, aes(x = x-0.005, y = y, color=.data[[tip_col_name]]))
   
   # Merge tree data for tips only
   combined_data <- rbind(d1, d2) %>% filter(isTip == TRUE)
   
+  if (is.null(text_width_factor)) {
+    text_width_factor <- max(d1$x, na.rm=TRUE) * 0.008
+  }
+
   # Create lines connecting the tips and assign padding
   combined_data <- combined_data %>%
     group_by(label) %>%
     mutate(
       lab_x = case_when(
-        tree == "t1" ~ x + lab_pad,
-        tree == "t2" ~ x - lab_pad,
+        tree == "t1" ~ x + lab_pad + (nchar(label) * text_width_factor),
+        tree == "t2" ~ x - lab_pad - (nchar(label) * text_width_factor),
         TRUE ~ x
       )
     ) %>%

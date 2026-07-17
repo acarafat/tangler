@@ -4,55 +4,62 @@ library(ggnewscale)
 library(dplyr)
 library(ggplot2)
 
-tip_vec <- c('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M')
+source("../R/common.tanglegram.R")
+source("../R/simple.tanglegram.R")
+source("../R/triple.tanglegram.R")
 
-t1 <- read.tree('../data/tree1.nwk')
-t2 <- read.tree('../data/tree2.nwk')
+set.seed(42)
+t1 <- phangorn::midpoint(ape::rtree(20))
+t2 <- phangorn::midpoint(ape::rtree(20))
+t3 <- phangorn::midpoint(ape::rtree(20))
 
-#t1 <- rtree(n=13, tip.label = tip_vec)
-#t2 <- rtree(n=13, tip.label = tip_vec)
+# Ensure the tip labels match between both trees
+t2$tip.label <- t1$tip.label
+t3$tip.label <- t1$tip.label
 
-#ape::write.tree(t1, file='~/Downloads/tree1.nwk')
-#ape::write.tree(t2, file='~/Downloads/tree2.nwk')
+# Create a dummy metadata frame matching the tip labels
+meta <- data.frame(
+  label = t1$tip.label,
+  ani.spp = as.character(sample(1:5, 20, replace = TRUE)),
+  host = sample(c("Host_X", "Host_Y", "Host_Z"), 20, replace = TRUE),
+  plasmid.type = sample(c("Type_A", "Type_B", "Type_C"), 20, replace = TRUE)
+)
 
-meta <- read.csv(file = 'data/meta.csv')
-
-# Annotate Trees
-tree1 <- ggtree(t1)   %<+% meta +
-  geom_tiplab() +
-  geom_tippoint(aes(color=Genotype))
-
-
-tree2 <- ggtree(t2) %<+% meta + geom_tiplab()
-
-
-# Update the connecting line x-position so that it do not overlap with tip-labels.
-tangler::simple.tanglegram(tree1, tree2, Genotype, Green,  t2_pad = 0.3,
-                  tiplab = T, lab_pad = 0.1, x_hjust = 1, t2_tiplab_size = 3)
-
-# Rotate the internal nodes so that tips of both trees are aligned
+# Rotate the internal nodes so that tips of trees are aligned
 rotated_trees <- pre.rotate(t1, t2)
-
 t1 <- rotated_trees[[1]]
 t2 <- rotated_trees[[2]]
 
 # Annotate Trees, make sure to set ladderize=F
-tree1 <- ggtree(t1, ladderize=F)   %<+% meta +
-  geom_tiplab() +
-  geom_tippoint(aes(color=Genotype))
+tree1 <- ggtree(t1, ladderize = F) %<+% meta + geom_tiplab(aes(x = x + 0.2))
+tree2 <- ggtree(t2, ladderize = F) %<+% meta + geom_tiplab(aes(x = x - 0.2))
+tree3 <- ggtree(t3, ladderize = F) %<+% meta + geom_tiplab(aes(x = x - 0.2))
 
-# Annotate Tree 2
-tree2 <- ggtree(t2, ladderize=F) %<+% meta + geom_tiplab()
+# Tanglegram, single value visualization
+print("Testing simple.tanglegram...")
+p1 <- simple.tanglegram(tree1, tree2,
+  column = plasmid.type, value = "Type_A", tip_column = ani.spp,
+  t2_pad = 0.8, tiplab = TRUE, lab_pad = 0.3, x_hjust = 1, t2_tiplab_size = 3
+)
 
+# Common tanglegram for both traits
+print("Testing common.tanglegram...")
+p2 <- common.tanglegram(tree1, tree2,
+  column = "host", tip_column = "plasmid.type",
+  sampletypecolors = c("Host_X" = "green4", "Host_Y" = "red", "Host_Z" = "blue"),
+  t2_pad = 0.8, tiplab = TRUE, lab_pad = 0.3, t2_tiplab_size = 3
+)
 
-# Tanglegram, no line color
-tangler::simple.tanglegram(tree1, tree2, Genotype, Green, t2_pad = 0.3,
-                           tiplab = T, lab_pad = 0.1, x_hjust = 1, t2_tiplab_size = 3)
+# Triple tanglegram
+print("Testing triple.tanglegram...")
+p3 <- triple.tanglegram(tree1, tree2, tree3,
+  column = "host", tip_column = "ani.spp",
+  sampletypecolors = c("Host_X" = "green4", "Host_Y" = "red", "Host_Z" = "blue"),
+  t2_pad = 0.8, t3_pad = 0.8, lab_pad = 0.3
+)
 
-# Common tanglegram for both trait
-tangler::common.tanglegram(tree1, tree2, column = 'Genotype', sampletypecolors = c('green4', 'red'), t2_pad = 0.3,
-                           tiplab = T, lab_pad = 0.1, t2_tiplab_size = 3)
+ggsave("../test_simple.png", p1)
+ggsave("../test_common.png", p2)
+ggsave("../test_triple.png", p3)
 
-
-# Patches issues
-# - Error in new_scale_color() : could not find function "new_scale_color"
+print("Success!")
