@@ -85,8 +85,18 @@ If you only want to highlight lines connecting tips matching one specific trait 
 
 ```R
 # Draw tanglegram highlighting the 'Type_A' plasmid type
-simple.tanglegram(tree1, tree2, column = plasmid.type, value = "Type_A", tip_column = ani.spp,
-                  t2_pad = 0.8, tiplab = TRUE, lab_pad = 0.3, x_hjust = 1, t2_tiplab_size = 3)
+simple.tanglegram(
+  tree1, tree2, 
+  column = plasmid.type, 
+  value = "Type_A", 
+  tip_column = ani.spp,
+  tiplab = TRUE, 
+  t2_pad = 1, 
+  lab_pad = 0.5, 
+  t2_tiplab_pad = 0.1, 
+  x_hjust = 1, 
+  t2_tiplab_size = 3
+)
 ```
 
 ![Simple Tanglegram](test_simple.png)
@@ -98,9 +108,17 @@ If you want to view links for all tips, colored dynamically by their category, u
 
 ```R
 # Draw tanglegram coloring connecting lines by 'host' category
-common.tanglegram(tree1, tree2, column = "host", tip_column = "plasmid.type",
-                  sampletypecolors = c("Host_X" = "green4", "Host_Y" = "red", "Host_Z" = "blue"),
-                  t2_pad = 0.8, tiplab = TRUE, lab_pad = 0.3, t2_tiplab_size = 3)
+common.tanglegram(
+  tree1, tree2, 
+  column = "host", 
+  tip_column = "plasmid.type",
+  sampletypecolors = c("Host_X" = "green4", "Host_Y" = "red", "Host_Z" = "blue"),
+  tiplab = TRUE, 
+  t2_pad = 1, 
+  lab_pad = 0.5, 
+  t2_tiplab_pad = 0.1, 
+  t2_tiplab_size = 3
+)
 ```
 
 ![Common Tanglegram](test_common.png)
@@ -112,9 +130,15 @@ For visualizing tripartite relations spanning three trees (e.g., Tree 1 <-> Tree
 
 ```R
 # Render Triple Tanglegram
-triple.tanglegram(tree1, tree2, tree3, column = "host", tip_column = "ani.spp",
-                  sampletypecolors = c("Host_X" = "green4", "Host_Y" = "red", "Host_Z" = "blue"),
-                  t2_pad = 0.8, t3_pad = 0.8, lab_pad = 0.3)
+triple.tanglegram(
+  tree1, tree2, tree3, 
+  column = "host", 
+  tip_column = "ani.spp",
+  sampletypecolors = c("Host_X" = "green4", "Host_Y" = "red", "Host_Z" = "blue"),
+  t2_pad = 1, 
+  t3_pad = 1, 
+  lab_pad = 0.5
+)
 ```
 
 ![Triple Tanglegram](test_triple.png)
