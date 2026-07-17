@@ -7,6 +7,7 @@
 #' @param tree2 Second tree as ggtree object. Will be represented in the right side of tanglegram (Tree 2).
 #' @param column The column from meta data.frame associated with both trees which will be used to connect the tips.
 #' @param value The value of the meta data.frame column defined that will be used to connect the tips.
+#' @param tip_column Optional. The column from the meta data.frame used to color the tip points of the trees. Defaults to `column`.
 #' @param t2_pad Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.
 #' @param x_hjust hjust value for the tip-labels of Tree 2.
 #' @param lab_pad Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 0.05.
@@ -25,13 +26,13 @@
 #' t1 <- read.tree('tree1.nwk') # Load tree 1
 #'
 #' # Load tree 1 and use ggtree to annotate features
-#' tree1 <- ggtree(t1)   %<+% meta +
-#'   geom_tippoint(aes(color=species))
+#' tree1 <- ggtree(t1) %<+% meta
+#' 
 #' # Load tree 2
 #' t2 <- read.tree("tree2.nwk")
 #' tree2 <- ggtree(t2) %<+% meta
 #'
-#' simple.tanglegram(tree1, tree2, column_of_interest, value_of_interest, t2_pad=1, t2_y_pos = 100, t2_y_scale=22, tiplab = T)
+#' simple.tanglegram(tree1, tree2, column_of_interest, value_of_interest, tip_column = species, t2_pad=1, t2_y_pos = 100, t2_y_scale=22, tiplab = T)
 #'
 #' @export
 

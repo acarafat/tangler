@@ -9,6 +9,7 @@
 #' @param tree1 First tree as ggtree object. Will be represented in the left side tanglegram (Tree 1).
 #' @param tree2 Second tree as ggtree object. Will be represented in the right side of tanglegram (Tree 2).
 #' @param column The column from meta data.frame associated with both trees which will be used to connect the tips.
+#' @param tip_column Optional. The column from the meta data.frame used to color the tip points of the trees. Defaults to `column`.
 #' @param sampletypecolors Named vector where names should correspond to the sample types, and the values are their associated colors.
 #' @param t2_pad Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.
 #' @param lab_pad Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 0.05.
@@ -26,15 +27,15 @@
 #' t1 <- read.tree('tree1.nwk') # Load tree 1
 #'
 #' # Load tree 1 and use ggtree to annotate features
-#' tree1 <- ggtree(t1)   %<+% meta +
-#'   geom_tippoint(aes(color=species))
+#' tree1 <- ggtree(t1) %<+% meta
+#' 
 #' # Load tree 2
 #' t2 <- read.tree("tree2.nwk")
 #' tree2 <- ggtree(t2) %<+% meta
 #'
 #' # Make a named vector
-#' sampletypecolors <- sampletypecolors <- c("hospital" = "#4E79A7", "terrestrial" = "#F28E2B", "animal" = "#E15759", "soil" = "#76B7B2")
-#' common.tanglegram(tree1, tree2, column_of_interest, sampletypecolors, t2_pad=1, tiplab = T)
+#' sampletypecolors <- c("hospital" = "#4E79A7", "terrestrial" = "#F28E2B", "animal" = "#E15759", "soil" = "#76B7B2")
+#' common.tanglegram(tree1, tree2, column_of_interest, tip_column = species, sampletypecolors, t2_pad=1, tiplab = T)
 #'
 #'
 #' @export

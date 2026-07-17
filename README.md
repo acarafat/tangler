@@ -39,21 +39,9 @@ devtools::install_github("acarafat/tangler")
 
 ## How to Use It
 
-To get started, you will need two or three phylogenetic trees as `phylo` objects (which share tip labels, at least partially) and a metadata `data.frame` mapping tip labels (typically in a `label` folder or column) to the categorizations.
+To get started, you will need two or three phylogenetic trees as `phylo` objects (which share tip labels, at least partially) and a metadata `data.frame` mapping tip labels to their respective traits or categorizations.
 
-Here is an example metadata file format:
-
-| label | Genotype |
-| :--- | :--- |
-| A | Green |
-| B | Green |
-| C | Green |
-| D | Green |
-| E | Red |
-| F | Red |
-
-### 1. Drawing a Tanglegram for a Specific Trait
-If you only want to highlight lines connecting tips matching one specific trait value, use `simple.tanglegram`:
+Here is how you can generate dummy trees and metadata to test the package:
 
 ```R
 library(ggplot2)
@@ -61,80 +49,75 @@ library(ggtree)
 library(dplyr)
 library(tangler)
 
-# Load trees and metadata
-t1 <- ape::read.tree('data/tree1.nwk')
-t2 <- ape::read.tree('data/tree2.nwk')
-meta <- read.csv('tree_meta.csv', header = TRUE) 
+# 1. Create dummy trees
+set.seed(42)
+t1 <- phangorn::midpoint(ape::rtree(20))
+t2 <- phangorn::midpoint(ape::rtree(20))
+t3 <- phangorn::midpoint(ape::rtree(20))
 
-# Convert to annotated ggtree objects
-tree1 <- ggtree(t1) %<+% meta +
-  geom_tiplab() +
-  geom_tippoint(aes(color = Genotype))
+# Ensure the tip labels match across all trees
+t2$tip.label <- t1$tip.label
+t3$tip.label <- t1$tip.label
 
-tree2 <- ggtree(t2) %<+% meta + geom_tiplab()
+# 2. Create metadata with categorical and tip-coloring columns
+meta <- data.frame(
+  label = t1$tip.label,
+  host = sample(c("Host_X", "Host_Y", "Host_Z"), 20, replace = TRUE),
+  plasmid.type = sample(c("Type_A", "Type_B", "Type_C"), 20, replace = TRUE),
+  ani.spp = as.character(sample(1:5, 20, replace = TRUE))
+)
 
-# Draw tanglegram highlighting the 'Green' genotype
-simple.tanglegram(tree1, tree2, column = Genotype, value = Green, 
-                  l_color = 'green3', t2_pad = 0.5, tiplab = TRUE, 
-                  lab_pad = 0.05, x_hjust = 1, t2_tiplab_size = 3)
+# 3. Pre-align Tip Orders (Untangling)
+# To minimize crossed vertical lines, rotate the internal nodes before building the ggtree objects.
+rotated_trees <- pre.rotate(t1, t2)
+t1 <- rotated_trees[[1]]
+t2 <- rotated_trees[[2]]
+
+# 4. Convert to annotated ggtree objects
+# Note: Make sure to set ladderize = FALSE so ggtree respects the rotation layout
+tree1 <- ggtree(t1, ladderize = FALSE) %<+% meta + geom_tiplab(aes(x = x + 0.2))
+tree2 <- ggtree(t2, ladderize = FALSE) %<+% meta + geom_tiplab(aes(x = x - 0.2))
+tree3 <- ggtree(t3, ladderize = FALSE) %<+% meta + geom_tiplab(aes(x = x - 0.2))
 ```
 
-![Example](simple_tanglegram.png)
-
----
-
-### 2. Pre-aligning Tip Orders (Untangling)
-To minimize crossed vertical lines, you can rotate the internal nodes using the `pre.rotate` helper function before drawing. Note: **Make sure to set `ladderize = FALSE`** when constructing the `ggtree` objects, so `ggtree` respects the updated rotation layout.
+### 1. Drawing a Tanglegram for a Specific Trait
+If you only want to highlight lines connecting tips matching one specific trait value, use `simple.tanglegram`:
 
 ```R
-# Optimize/align the tip layouts of both trees
-rotated_trees <- pre.rotate(t1, t2)
-t1_rotated <- rotated_trees[[1]]
-t2_rotated <- rotated_trees[[2]]
-
-# Build ggtree representation with ladderize = FALSE
-tree1 <- ggtree(t1_rotated, ladderize = FALSE) %<+% meta +
-  geom_tiplab() +
-  geom_tippoint(aes(color = Genotype))
-
-tree2 <- ggtree(t2_rotated, ladderize = FALSE) %<+% meta + geom_tiplab()
-
-# Render tanglegram
-simple.tanglegram(tree1, tree2, column = Genotype, value = Green, 
-                  l_color = 'green3', t2_pad = 0.5, tiplab = TRUE, 
-                  lab_pad = 0.05, x_hjust = 1, t2_tiplab_size = 3)
+# Draw tanglegram highlighting the 'Type_A' plasmid type
+simple.tanglegram(tree1, tree2, column = plasmid.type, value = "Type_A", tip_column = ani.spp,
+                  t2_pad = 0.8, tiplab = TRUE, lab_pad = 0.3, x_hjust = 1, t2_tiplab_size = 3)
 ```
 
-![Example](simple_tanglegram_ordered.png)
+![Simple Tanglegram](test_simple.png)
 
 ---
 
-### 3. Coloring Lines by Categorical Groups
+### 2. Coloring Lines by Categorical Groups
 If you want to view links for all tips, colored dynamically by their category, use `common.tanglegram`:
 
 ```R
-common.tanglegram(tree1, tree2, column = 'Genotype', 
-                  sampletypecolors = c('Green' = 'green4', 'Red' = 'red'), 
-                  t2_pad = 0.5, tiplab = TRUE, lab_pad = 0.05, t2_tiplab_size = 3)
+# Draw tanglegram coloring connecting lines by 'host' category
+common.tanglegram(tree1, tree2, column = "host", tip_column = "plasmid.type",
+                  sampletypecolors = c("Host_X" = "green4", "Host_Y" = "red", "Host_Z" = "blue"),
+                  t2_pad = 0.8, tiplab = TRUE, lab_pad = 0.3, t2_tiplab_size = 3)
 ```
 
-![Example](common_tanglegram.png)
+![Common Tanglegram](test_common.png)
 
 ---
 
-### 4. Tripartite Tanglegrams (`triple.tanglegram`)
-For visualizing tripartite relations (e.g., Tree 1 <-> Tree 2 <-> Tree 3), use `triple.tanglegram`:
+### 3. Tripartite Tanglegrams (`triple.tanglegram`)
+For visualizing tripartite relations spanning three trees (e.g., Tree 1 <-> Tree 2 <-> Tree 3), use `triple.tanglegram`:
 
 ```R
-# Load third tree
-t3 <- ape::read.tree('data/tree3.nwk')
-tree3 <- ggtree(t3, ladderize = FALSE) %<+% meta
-
 # Render Triple Tanglegram
-triple.tanglegram(tree1, tree2, tree3, column = 'Genotype',
-                  t2_pad = 0.5, t3_pad = 0.5,
-                  lab_pad = 0.05)
+triple.tanglegram(tree1, tree2, tree3, column = "host", tip_column = "ani.spp",
+                  sampletypecolors = c("Host_X" = "green4", "Host_Y" = "red", "Host_Z" = "blue"),
+                  t2_pad = 0.8, t3_pad = 0.8, lab_pad = 0.3)
 ```
+
+![Triple Tanglegram](test_triple.png)
 
 ---
 

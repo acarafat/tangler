@@ -7,6 +7,7 @@
 #' @param tree2 Second tree as ggtree object. Will be represented in the middle of tanglegram (Tree 2).
 #' @param tree3 Third tree as ggtree object. Will be represented in the right side of tanglegram (Tree 3).
 #' @param column The column from meta data.frame associated with both trees which will be used to connect the tips.
+#' @param tip_column Optional. The column from the meta data.frame used to color the tip points of the trees. Defaults to `column`.
 #' @param sampletypecolors Named vector where names should correspond to the sample types, and the values are their associated colors.
 #' @param t2_pad Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.
 #' @param t3_pad Tree 3 padding. Change this to adjust position of Tree 3. Default 0.5.

@@ -9,6 +9,7 @@ triple.tanglegram(
   tree2,
   tree3,
   column,
+  tip_column,
   sampletypecolors = NA,
   t2_pad = 0.5,
   t3_pad = 0.5,
@@ -16,7 +17,8 @@ triple.tanglegram(
   t2_y_pos = 0,
   t3_y_scale = 1,
   t3_y_pos = 0,
-  lab_pad = 0.05
+  lab_pad = 0.05,
+  text_width_factor = NULL
 )
 }
 \arguments{
@@ -27,6 +29,8 @@ triple.tanglegram(
 \item{tree3}{Third tree as ggtree object. Will be represented in the right side of tanglegram (Tree 3).}
 
 \item{column}{The column from meta data.frame associated with both trees which will be used to connect the tips.}
+
+\item{tip_column}{Optional. The column from the meta data.frame used to color the tip points of the trees. Defaults to `column`.}
 
 \item{sampletypecolors}{Named vector where names should correspond to the sample types, and the values are their associated colors.}
 
