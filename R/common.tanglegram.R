@@ -17,6 +17,9 @@
 #'   lines. Names must correspond to categories in `column`.
 #' @param tip_colors Optional named vector used to manually color tip points.
 #'   Names must correspond to categories in `tip_column`.
+#' @param link_linewidth Width of the connecting lines. Default 0.5.
+#' @param link_alpha Opacity of the connecting lines, between 0 (transparent)
+#'   and 1 (opaque). Default 0.4.
 #' @param t2_pad Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.
 #' @param lab_pad Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 0.05.
 #' @param tiplab Boolean. Shows tip-labels of Tree 1. Default False. For showing tip-labels of Tree 1, add geom_tiplab() during defining the tree.
@@ -45,7 +48,8 @@
 #' tip_colors <- c("species_a" = "#59A14F", "species_b" = "#EDC948")
 #' common.tanglegram(tree1, tree2, column_of_interest,
 #'                   tip_column = species, link_colors = link_colors,
-#'                   tip_colors = tip_colors, t2_pad = 1, tiplab = TRUE)
+#'                   tip_colors = tip_colors, link_linewidth = 0.8,
+#'                   link_alpha = 0.7, t2_pad = 1, tiplab = TRUE)
 #'
 #'
 #' @export
@@ -54,7 +58,19 @@ common.tanglegram <- function(tree1, tree2, column, tip_column, sampletypecolors
                               t2_pad = 0.5, t2_y_scale = 1, t2_y_pos = 0,
                               lab_pad = 0.05, text_width_factor = NULL, tiplab = FALSE, t2_tiplab_size = 3,
                               t2_tiplab_pad = 0, link_colors = NULL,
-                              tip_colors = NULL) {
+                              tip_colors = NULL, link_linewidth = 0.5,
+                              link_alpha = 0.4) {
+
+  if (!is.numeric(link_linewidth) || length(link_linewidth) != 1 ||
+      is.na(link_linewidth) || !is.finite(link_linewidth) || link_linewidth < 0) {
+    stop("`link_linewidth` must be one finite, non-negative number.", call. = FALSE)
+  }
+
+  if (!is.numeric(link_alpha) || length(link_alpha) != 1 ||
+      is.na(link_alpha) || !is.finite(link_alpha) ||
+      link_alpha < 0 || link_alpha > 1) {
+    stop("`link_alpha` must be one number between 0 and 1.", call. = FALSE)
+  }
   
   # Remove treescales from the trees
   remove_treescale <- function(tree) {
@@ -138,8 +154,9 @@ common.tanglegram <- function(tree1, tree2, column, tip_column, sampletypecolors
         group = label,
         color = .data[[column]]
       ),
-      data = combined_data, 
-      alpha = 0.4
+      data = combined_data,
+      linewidth = link_linewidth,
+      alpha = link_alpha
     )
   
   # Resolve the new line-color argument while retaining sampletypecolors for

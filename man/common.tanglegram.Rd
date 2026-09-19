@@ -19,7 +19,9 @@ common.tanglegram(
   t2_tiplab_size = 3,
   t2_tiplab_pad = 0,
   link_colors = NULL,
-  tip_colors = NULL
+  tip_colors = NULL,
+  link_linewidth = 0.5,
+  link_alpha = 0.4
 )
 }
 \arguments{
@@ -40,6 +42,11 @@ lines. Names must correspond to categories in \code{column}.}
 
 \item{tip_colors}{Optional named vector used to manually color tip points.
 Names must correspond to categories in \code{tip_column}.}
+
+\item{link_linewidth}{Width of the connecting lines. Default 0.5.}
+
+\item{link_alpha}{Opacity of the connecting lines, between 0 (transparent)
+and 1 (opaque). Default 0.4.}
 
 \item{t2_pad}{Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.}
 
@@ -83,7 +90,8 @@ link_colors <- c("hospital" = "#4E79A7", "terrestrial" = "#F28E2B",
 tip_colors <- c("species_a" = "#59A14F", "species_b" = "#EDC948")
 common.tanglegram(tree1, tree2, column_of_interest,
                   tip_column = species, link_colors = link_colors,
-                  tip_colors = tip_colors, t2_pad = 1, tiplab = TRUE)
+                  tip_colors = tip_colors, link_linewidth = 0.8,
+                  link_alpha = 0.7, t2_pad = 1, tiplab = TRUE)
 
 
 }

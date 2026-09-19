@@ -94,6 +94,8 @@ common.tanglegram(
     "North" = "#3B4992", "South" = "#EE0000",
     "East" = "#008B45", "West" = "#631879"
   ),
+  link_linewidth = 0.8,
+  link_alpha = 0.7,
   tiplab = TRUE, 
   t2_pad = 1, 
   lab_pad = 0.5, 
