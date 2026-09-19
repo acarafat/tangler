@@ -10,7 +10,13 @@
 #' @param tree2 Second tree as ggtree object. Will be represented in the right side of tanglegram (Tree 2).
 #' @param column The column from meta data.frame associated with both trees which will be used to connect the tips.
 #' @param tip_column Optional. The column from the meta data.frame used to color the tip points of the trees. Defaults to `column`.
-#' @param sampletypecolors Named vector where names should correspond to the sample types, and the values are their associated colors.
+#' @param sampletypecolors Backward-compatible alias for `link_colors`. A named
+#'   vector where names correspond to the categories in `column` and values are
+#'   colors. Existing calls using this argument continue to work.
+#' @param link_colors Optional named vector used to manually color connecting
+#'   lines. Names must correspond to categories in `column`.
+#' @param tip_colors Optional named vector used to manually color tip points.
+#'   Names must correspond to categories in `tip_column`.
 #' @param t2_pad Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.
 #' @param lab_pad Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 0.05.
 #' @param tiplab Boolean. Shows tip-labels of Tree 1. Default False. For showing tip-labels of Tree 1, add geom_tiplab() during defining the tree.
@@ -33,9 +39,13 @@
 #' t2 <- read.tree("tree2.nwk")
 #' tree2 <- ggtree(t2) %<+% meta
 #'
-#' # Make a named vector
-#' sampletypecolors <- c("hospital" = "#4E79A7", "terrestrial" = "#F28E2B", "animal" = "#E15759", "soil" = "#76B7B2")
-#' common.tanglegram(tree1, tree2, column_of_interest, tip_column = species, sampletypecolors, t2_pad=1, tiplab = T)
+#' # Make named vectors for connecting-line and tip-point colors
+#' link_colors <- c("hospital" = "#4E79A7", "terrestrial" = "#F28E2B",
+#'                  "animal" = "#E15759", "soil" = "#76B7B2")
+#' tip_colors <- c("species_a" = "#59A14F", "species_b" = "#EDC948")
+#' common.tanglegram(tree1, tree2, column_of_interest,
+#'                   tip_column = species, link_colors = link_colors,
+#'                   tip_colors = tip_colors, t2_pad = 1, tiplab = TRUE)
 #'
 #'
 #' @export
@@ -43,7 +53,8 @@
 common.tanglegram <- function(tree1, tree2, column, tip_column, sampletypecolors=NA,
                               t2_pad = 0.5, t2_y_scale = 1, t2_y_pos = 0,
                               lab_pad = 0.05, text_width_factor = NULL, tiplab = FALSE, t2_tiplab_size = 3,
-                              t2_tiplab_pad = 0) {
+                              t2_tiplab_pad = 0, link_colors = NULL,
+                              tip_colors = NULL) {
   
   # Remove treescales from the trees
   remove_treescale <- function(tree) {
@@ -91,6 +102,12 @@ common.tanglegram <- function(tree1, tree2, column, tip_column, sampletypecolors
     geom_tippoint(aes(x = x, y = y, color=.data[[tip_col_name]])) +
     geom_tree(data=d2, layout = "dendrogram") + 
     geom_tippoint(data = d2, aes(x = x-0.005, y = y, color=.data[[tip_col_name]]))
+
+  # Apply an optional manual scale to tip points. This scale must be added
+  # before new_scale_color(), which starts the independent line-color scale.
+  if (!is.null(tip_colors)) {
+    pp <- pp + scale_color_manual(values = tip_colors)
+  }
   
   # Merge tree data for tips only
   combined_data <- rbind(d1, d2) %>% filter(isTip == TRUE)
@@ -125,11 +142,29 @@ common.tanglegram <- function(tree1, tree2, column, tip_column, sampletypecolors
       alpha = 0.4
     )
   
-  # Apply custom or default colors
-  if (missing(sampletypecolors) || is.null(sampletypecolors)) {
+  # Resolve the new line-color argument while retaining sampletypecolors for
+  # backward compatibility. Treat its historical default (NA) as unspecified.
+  legacy_colors_supplied <- !missing(sampletypecolors) &&
+    !is.null(sampletypecolors) &&
+    !(length(sampletypecolors) == 1 && is.na(sampletypecolors))
+
+  if (!is.null(link_colors) && legacy_colors_supplied) {
+    stop("Specify only one of `link_colors` and `sampletypecolors`.", call. = FALSE)
+  }
+
+  resolved_link_colors <- if (!is.null(link_colors)) {
+    link_colors
+  } else if (legacy_colors_supplied) {
+    sampletypecolors
+  } else {
+    NULL
+  }
+
+  # Apply custom or default connecting-line colors
+  if (is.null(resolved_link_colors)) {
     pp <- pp + scale_color_viridis_d(option="turbo")   
   } else {
-    pp <- pp + scale_color_manual(values = sampletypecolors) 
+    pp <- pp + scale_color_manual(values = resolved_link_colors)
   }
   
   # Optionally show tip labels for tree 2

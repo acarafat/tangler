@@ -95,6 +95,10 @@ common.tanglegram(
   tree1, tree2, 
   column = "category", 
   tip_column = "tip_category", 
+  link_colors = c(
+    "Group 1" = "#E64B35", "Group 2" = "#4DBBD5", "Group 3" = "#00A087"
+  ),
+  tip_colors = c("Type A" = "#3B4992", "Type B" = "#EE0000"),
   t2_pad = 0.5
 )
 ```

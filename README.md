@@ -87,6 +87,13 @@ common.tanglegram(
   tree1_unrot_labeled, tree2_unrot, 
   column = "category", 
   tip_column = "location",
+  link_colors = c(
+    "Group 1" = "#E64B35", "Group 2" = "#4DBBD5", "Group 3" = "#00A087"
+  ),
+  tip_colors = c(
+    "North" = "#3B4992", "South" = "#EE0000",
+    "East" = "#008B45", "West" = "#631879"
+  ),
   tiplab = TRUE, 
   t2_pad = 1, 
   lab_pad = 0.5, 

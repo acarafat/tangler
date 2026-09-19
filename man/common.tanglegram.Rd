@@ -17,7 +17,9 @@ common.tanglegram(
   text_width_factor = NULL,
   tiplab = FALSE,
   t2_tiplab_size = 3,
-  t2_tiplab_pad = 0
+  t2_tiplab_pad = 0,
+  link_colors = NULL,
+  tip_colors = NULL
 )
 }
 \arguments{
@@ -29,7 +31,15 @@ common.tanglegram(
 
 \item{tip_column}{Optional. The column from the meta data.frame used to color the tip points of the trees. Defaults to `column`.}
 
-\item{sampletypecolors}{Named vector where names should correspond to the sample types, and the values are their associated colors.}
+\item{sampletypecolors}{Backward-compatible alias for \code{link_colors}. A named
+vector where names correspond to the categories in \code{column} and values are
+colors. Existing calls using this argument continue to work.}
+
+\item{link_colors}{Optional named vector used to manually color connecting
+lines. Names must correspond to categories in \code{column}.}
+
+\item{tip_colors}{Optional named vector used to manually color tip points.
+Names must correspond to categories in \code{tip_column}.}
 
 \item{t2_pad}{Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.}
 
@@ -67,9 +77,13 @@ tree1 <- ggtree(t1) \%<+\% meta
 t2 <- read.tree("tree2.nwk")
 tree2 <- ggtree(t2) \%<+\% meta
 
-# Make a named vector
-sampletypecolors <- c("hospital" = "#4E79A7", "terrestrial" = "#F28E2B", "animal" = "#E15759", "soil" = "#76B7B2")
-common.tanglegram(tree1, tree2, column_of_interest, tip_column = species, sampletypecolors, t2_pad=1, tiplab = T)
+# Make named vectors for connecting-line and tip-point colors
+link_colors <- c("hospital" = "#4E79A7", "terrestrial" = "#F28E2B",
+                 "animal" = "#E15759", "soil" = "#76B7B2")
+tip_colors <- c("species_a" = "#59A14F", "species_b" = "#EDC948")
+common.tanglegram(tree1, tree2, column_of_interest,
+                  tip_column = species, link_colors = link_colors,
+                  tip_colors = tip_colors, t2_pad = 1, tiplab = TRUE)
 
 
 }
