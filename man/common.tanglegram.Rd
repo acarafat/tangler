@@ -21,7 +21,12 @@ common.tanglegram(
   link_colors = NULL,
   tip_colors = NULL,
   link_linewidth = 0.5,
-  link_alpha = 0.4
+  link_alpha = 0.4,
+  bootstrap_threshold = NULL,
+  bootstrap_column = "label",
+  bootstrap_symbol = "*",
+  bootstrap_size = 4,
+  bootstrap_color = "black"
 )
 }
 \arguments{
@@ -47,6 +52,19 @@ Names must correspond to categories in \code{tip_column}.}
 
 \item{link_alpha}{Opacity of the connecting lines, between 0 (transparent)
 and 1 (opaque). Default 0.4.}
+
+\item{bootstrap_threshold}{Optional numeric support threshold. When supplied,
+internal nodes in both trees whose support is greater than or equal to this
+value are marked. For percentage bootstrap values, use e.g. 95.}
+
+\item{bootstrap_column}{Column containing node-support values. Newick bootstrap
+values read by \code{ape::read.tree()} are normally stored in \code{label}.}
+
+\item{bootstrap_symbol}{Character used to mark supported nodes. Default \code{"*"}.}
+
+\item{bootstrap_size}{Text size of the bootstrap symbol. Default 4.}
+
+\item{bootstrap_color}{Color of the bootstrap symbol. Default \code{"black"}.}
 
 \item{t2_pad}{Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.}
 
@@ -91,7 +109,8 @@ tip_colors <- c("species_a" = "#59A14F", "species_b" = "#EDC948")
 common.tanglegram(tree1, tree2, column_of_interest,
                   tip_column = species, link_colors = link_colors,
                   tip_colors = tip_colors, link_linewidth = 0.8,
-                  link_alpha = 0.7, t2_pad = 1, tiplab = TRUE)
+                  link_alpha = 0.7, bootstrap_threshold = 95,
+                  bootstrap_symbol = "*", t2_pad = 1, tiplab = TRUE)
 
 
 }

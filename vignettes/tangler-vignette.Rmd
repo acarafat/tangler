@@ -101,6 +101,9 @@ common.tanglegram(
   tip_colors = c("Type A" = "#3B4992", "Type B" = "#EE0000"),
   link_linewidth = 0.8,
   link_alpha = 0.7,
+  bootstrap_threshold = 95,
+  bootstrap_symbol = "*",
+  bootstrap_size = 4,
   t2_pad = 0.5
 )
 ```
