@@ -26,7 +26,12 @@ common.tanglegram(
   bootstrap_column = "label",
   bootstrap_symbol = "*",
   bootstrap_size = 4,
-  bootstrap_color = "black"
+  bootstrap_color = "black",
+  bootstrap_x_offset = 0,
+  bootstrap_y_offset = 0,
+  left_lab_pad = NULL,
+  right_lab_pad = NULL,
+  tip_point_offset = 0
 )
 }
 \arguments{
@@ -48,6 +53,10 @@ lines. Names must correspond to categories in \code{column}.}
 \item{tip_colors}{Optional named vector used to manually color tip points.
 Names must correspond to categories in \code{tip_column}.}
 
+\item{tip_point_offset}{Horizontal offset of tip points from their branch
+endpoints, mirrored between trees. Positive values move points toward the
+center (right on tree 1, left on tree 2). Default 0.}
+
 \item{link_linewidth}{Width of the connecting lines. Default 0.5.}
 
 \item{link_alpha}{Opacity of the connecting lines, between 0 (transparent)
@@ -66,13 +75,25 @@ values read by \code{ape::read.tree()} are normally stored in \code{label}.}
 
 \item{bootstrap_color}{Color of the bootstrap symbol. Default \code{"black"}.}
 
+\item{bootstrap_x_offset}{Horizontal offset of bootstrap symbols in plot
+coordinates, mirrored between the two trees. Positive values move symbols
+toward the tips (right on tree 1, left on tree 2). Default 0.}
+
+\item{bootstrap_y_offset}{Vertical offset of bootstrap symbols in plot
+coordinates. Positive values move symbols upward. Default 0.}
+
 \item{t2_pad}{Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.}
 
 \item{t2_y_scale}{If Tree 2 is different size than Tree 1, then use this to adjust Tree 2 scale.}
 
 \item{t2_y_pos}{If Tree 2 is different size than Tree 1, then use this to adjust their relative positions.}
 
-\item{lab_pad}{Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 0.05.}
+\item{lab_pad}{Common horizontal spacing added to both connecting-line
+endpoints beyond the estimated tip-label width. Default 0.05.}
+
+\item{left_lab_pad}{Optional spacing for tree 1 (left), overriding \code{lab_pad}.}
+
+\item{right_lab_pad}{Optional spacing for tree 2 (right), overriding \code{lab_pad}.}
 
 \item{tiplab}{Boolean. Shows tip-labels of Tree 1. Default False. For showing tip-labels of Tree 1, add geom_tiplab() during defining the tree.}
 
@@ -110,7 +131,9 @@ common.tanglegram(tree1, tree2, column_of_interest,
                   tip_column = species, link_colors = link_colors,
                   tip_colors = tip_colors, link_linewidth = 0.8,
                   link_alpha = 0.7, bootstrap_threshold = 95,
-                  bootstrap_symbol = "*", t2_pad = 1, tiplab = TRUE)
+                  bootstrap_symbol = "*", bootstrap_size = 5,
+                  bootstrap_x_offset = 0.02, bootstrap_y_offset = 0.1,
+                  tip_point_offset = 0.01, t2_pad = 1, tiplab = TRUE)
 
 
 }

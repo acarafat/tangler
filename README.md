@@ -99,9 +99,14 @@ common.tanglegram(
   bootstrap_threshold = 95,
   bootstrap_symbol = "*",
   bootstrap_size = 4,
+  bootstrap_x_offset = 0.02,
+  bootstrap_y_offset = 0.1,
   tiplab = TRUE, 
   t2_pad = 1, 
   lab_pad = 0.5, 
+  left_lab_pad = 0.4,
+  right_lab_pad = 0.6,
+  tip_point_offset = 0.01,
   t2_tiplab_pad = 0.1
 )
 ```
