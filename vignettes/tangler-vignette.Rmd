@@ -29,7 +29,7 @@ Load the necessary libraries:
 library(ggplot2)
 library(ggtree)
 library(dplyr)
-library(tangler) 
+library(tangler)
 ```
 
 ### Main Functions
@@ -79,9 +79,9 @@ If you only want to plot lines between tips that share a specific value (for exa
 ```{r}
 # 1. Simple Tanglegram (Filters for "Group 1", colors tips by tip_category)
 simple.tanglegram(
-  tree1, tree2, 
-  column = category, 
-  value = "Group 1", 
+  tree1, tree2,
+  column = category,
+  value = "Group 1",
   tip_column = tip_category
 )
 ```
@@ -92,9 +92,9 @@ To view links for all tips colored by their overarching category, use `common.ta
 ```{r}
 # 2. Common Tanglegram
 common.tanglegram(
-  tree1, tree2, 
-  column = "category", 
-  tip_column = "tip_category", 
+  tree1, tree2,
+  column = "category",
+  tip_column = "tip_category",
   link_colors = c(
     "Group 1" = "#E64B35", "Group 2" = "#4DBBD5", "Group 3" = "#00A087"
   ),
@@ -127,9 +127,9 @@ rot_tree2 <- ggtree(rot_t2, ladderize = FALSE) %<+% meta
 
 # Draw the Common Tanglegram with rotated trees
 common.tanglegram(
-  rot_tree1, rot_tree2, 
-  column = "category", 
-  tip_column = "tip_category", 
+  rot_tree1, rot_tree2,
+  column = "category",
+  tip_column = "tip_category",
   t2_pad = 0.5
 )
 ```
@@ -140,10 +140,10 @@ For visualizing tripartite relations spanning three phylogenies, use `triple.tan
 ```{r}
 # 3. Triple Tanglegram
 triple.tanglegram(
-  tree1, tree2, tree3, 
-  column = "category", 
-  tip_column = "tip_category", 
-  t2_pad = 0.5, 
+  tree1, tree2, tree3,
+  column = "category",
+  tip_column = "tip_category",
+  t2_pad = 0.5,
   t3_pad = 0.5
 )
 ```
@@ -160,25 +160,23 @@ tree1_labeled <- tree1 + geom_tiplab(aes(x = x + 0.1))
 
 # 4. Simple Tanglegram with alternative tip column ('location') and tip labels
 simple.tanglegram(
-  tree1_labeled, tree2, 
-  column = category, 
-  value = "Group 1", 
-  tip_column = location, 
-  tiplab = TRUE, 
-  lab_pad = 0.5, 
-  left_lab_pad = 0.4,
-  right_lab_pad = 0.6,
+  tree1_labeled, tree2,
+  column = category,
+  value = "Group 1",
+  tip_column = location,
+  tiplab = TRUE,
+  lab_pad = 0.5,
   t2_tiplab_pad = 0.1
 )
 
 # 5. Common Tanglegram with alternative tip column and tip labels
 common.tanglegram(
-  tree1_labeled, tree2, 
-  column = "category", 
-  tip_column = "location", 
-  tiplab = TRUE, 
-  t2_pad = 1, 
-  lab_pad = 0.5, 
+  tree1_labeled, tree2,
+  column = "category",
+  tip_column = "location",
+  tiplab = TRUE,
+  t2_pad = 1,
+  lab_pad = 0.5,
   t2_tiplab_pad = 0.1
 )
 ```
@@ -193,11 +191,42 @@ tree2_labeled <- tree2 + geom_tiplab(aes(x = x - 0.1), hjust = 1)
 tree3_labeled <- tree3 + geom_tiplab(aes(x = x - 0.1), hjust = 1)
 
 triple.tanglegram(
-  tree1_labeled, tree2_labeled, tree3_labeled, 
-  column = "category", 
-  tip_column = "location", 
-  t2_pad = 1, 
-  t3_pad = 1, 
+  tree1_labeled, tree2_labeled, tree3_labeled,
+  column = "category",
+  tip_column = "location",
+  t2_pad = 1,
+  t3_pad = 1,
   lab_pad = 0.5
 )
 ```
+
+### Displaying Bootstrap Values
+
+If your phylogenetic trees contain node labels that represent bootstrap support values, you can highlight well-supported nodes using the `bootstrap_*` arguments.
+
+```{r}
+# Assign random bootstrap values to the dummy trees for demonstration
+t1$node.label <- sample(50:100, t1$Nnode, replace = TRUE)
+t2$node.label <- sample(50:100, t2$Nnode, replace = TRUE)
+
+# Re-build ggtree objects with the new node labels
+tree1_bs <- ggtree(t1) %<+% meta
+tree2_bs <- ggtree(t2) %<+% meta
+
+# 7. Common Tanglegram displaying bootstraps >= 80
+common.tanglegram(
+  tree1_bs, tree2_bs,
+  column = "category",
+  tip_column = "location",
+  bootstrap_threshold = 80,
+  bootstrap_symbol = "*",
+  bootstrap_size = 5,
+  bootstrap_x_offset = -0.1,
+  bootstrap_y_offset = 0.1,
+  t2_pad = 0.5
+)
+```
+
+## Acknowledgements
+
+A special thanks to [Akira Hirao](https://github.com/akihirao) for their valuable contributions to the development and improvement of `tangler`.

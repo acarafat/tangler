@@ -148,5 +148,10 @@ common.tanglegram(
 
 ---
 
+## Acknowledgements
+A special thanks to [Akira Hirao](https://github.com/akihirao) for their valuable contributions to this project!
+
+---
+
 ## Feature Requests & Bug Reports
 For questions, enhancements, or bug reports, please open an issue in this repository's **Issues** tracker!
