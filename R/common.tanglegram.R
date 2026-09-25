@@ -10,9 +10,37 @@
 #' @param tree2 Second tree as ggtree object. Will be represented in the right side of tanglegram (Tree 2).
 #' @param column The column from meta data.frame associated with both trees which will be used to connect the tips.
 #' @param tip_column Optional. The column from the meta data.frame used to color the tip points of the trees. Defaults to `column`.
-#' @param sampletypecolors Named vector where names should correspond to the sample types, and the values are their associated colors.
+#' @param sampletypecolors Backward-compatible alias for `link_colors`. A named
+#'   vector where names correspond to the categories in `column` and values are
+#'   colors. Existing calls using this argument continue to work.
+#' @param link_colors Optional named vector used to manually color connecting
+#'   lines. Names must correspond to categories in `column`.
+#' @param tip_colors Optional named vector used to manually color tip points.
+#'   Names must correspond to categories in `tip_column`.
+#' @param tip_point_offset Horizontal offset of tip points from their branch
+#'   endpoints, mirrored between trees. Positive values move points toward the
+#'   center (right on tree 1, left on tree 2). Default 0.
+#' @param link_linewidth Width of the connecting lines. Default 0.5.
+#' @param link_alpha Opacity of the connecting lines, between 0 (transparent)
+#'   and 1 (opaque). Default 0.4.
+#' @param bootstrap_threshold Optional numeric support threshold. When supplied,
+#'   internal nodes in both trees whose support is greater than or equal to this
+#'   value are marked. For percentage bootstrap values, use e.g. 95.
+#' @param bootstrap_column Column containing node-support values. Newick bootstrap
+#'   values read by `ape::read.tree()` are normally stored in `label`.
+#' @param bootstrap_symbol Character used to mark supported nodes. Default `"*"`.
+#' @param bootstrap_size Text size of the bootstrap symbol. Default 4.
+#' @param bootstrap_color Color of the bootstrap symbol. Default `"black"`.
+#' @param bootstrap_x_offset Horizontal offset of bootstrap symbols in plot
+#'   coordinates, mirrored between the two trees. Positive values move symbols
+#'   toward the tips (right on tree 1, left on tree 2). Default 0.
+#' @param bootstrap_y_offset Vertical offset of bootstrap symbols in plot
+#'   coordinates. Positive values move symbols upward. Default 0.
 #' @param t2_pad Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.
-#' @param lab_pad Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 0.05.
+#' @param lab_pad Common horizontal spacing added to both connecting-line
+#'   endpoints beyond the estimated tip-label width. Default 0.05.
+#' @param left_lab_pad Optional spacing for tree 1 (left), overriding `lab_pad`.
+#' @param right_lab_pad Optional spacing for tree 2 (right), overriding `lab_pad`.
 #' @param tiplab Boolean. Shows tip-labels of Tree 1. Default False. For showing tip-labels of Tree 1, add geom_tiplab() during defining the tree.
 #' @param t2_y_pos If Tree 2 is different size than Tree 1, then use this to adjust their relative positions.
 #' @param t2_y_scale If Tree 2 is different size than Tree 1, then use this to adjust Tree 2 scale.
@@ -33,9 +61,17 @@
 #' t2 <- read.tree("tree2.nwk")
 #' tree2 <- ggtree(t2) %<+% meta
 #'
-#' # Make a named vector
-#' sampletypecolors <- c("hospital" = "#4E79A7", "terrestrial" = "#F28E2B", "animal" = "#E15759", "soil" = "#76B7B2")
-#' common.tanglegram(tree1, tree2, column_of_interest, tip_column = species, sampletypecolors, t2_pad=1, tiplab = T)
+#' # Make named vectors for connecting-line and tip-point colors
+#' link_colors <- c("hospital" = "#4E79A7", "terrestrial" = "#F28E2B",
+#'                  "animal" = "#E15759", "soil" = "#76B7B2")
+#' tip_colors <- c("species_a" = "#59A14F", "species_b" = "#EDC948")
+#' common.tanglegram(tree1, tree2, column_of_interest,
+#'                   tip_column = species, link_colors = link_colors,
+#'                   tip_colors = tip_colors, link_linewidth = 0.8,
+#'                   link_alpha = 0.7, bootstrap_threshold = 95,
+#'                   bootstrap_symbol = "*", bootstrap_size = 5,
+#'                   bootstrap_x_offset = 0.02, bootstrap_y_offset = 0.1,
+#'                   tip_point_offset = 0.01, t2_pad = 1, tiplab = TRUE)
 #'
 #'
 #' @export
@@ -43,7 +79,73 @@
 common.tanglegram <- function(tree1, tree2, column, tip_column, sampletypecolors=NA,
                               t2_pad = 0.5, t2_y_scale = 1, t2_y_pos = 0,
                               lab_pad = 0.05, text_width_factor = NULL, tiplab = FALSE, t2_tiplab_size = 3,
-                              t2_tiplab_pad = 0) {
+                              t2_tiplab_pad = 0, link_colors = NULL,
+                              tip_colors = NULL, link_linewidth = 0.5,
+                              link_alpha = 0.4, bootstrap_threshold = NULL,
+                              bootstrap_column = "label", bootstrap_symbol = "*",
+                              bootstrap_size = 4, bootstrap_color = "black",
+                              bootstrap_x_offset = 0, bootstrap_y_offset = 0,
+                              left_lab_pad = NULL, right_lab_pad = NULL,
+                              tip_point_offset = 0) {
+
+  if (!is.numeric(tip_point_offset) || length(tip_point_offset) != 1 ||
+      is.na(tip_point_offset) || !is.finite(tip_point_offset)) {
+    stop("`tip_point_offset` must be one finite number.", call. = FALSE)
+  }
+
+  for (name in c("left_lab_pad", "right_lab_pad")) {
+    value <- get(name)
+    if (!is.null(value) &&
+        (!is.numeric(value) || length(value) != 1 ||
+         is.na(value) || !is.finite(value))) {
+      stop(sprintf("`%s` must be NULL or one finite number.", name), call. = FALSE)
+    }
+  }
+
+  if (is.null(left_lab_pad)) left_lab_pad <- lab_pad
+  if (is.null(right_lab_pad)) right_lab_pad <- lab_pad
+
+  if (!is.numeric(link_linewidth) || length(link_linewidth) != 1 ||
+      is.na(link_linewidth) || !is.finite(link_linewidth) || link_linewidth < 0) {
+    stop("`link_linewidth` must be one finite, non-negative number.", call. = FALSE)
+  }
+
+  if (!is.numeric(link_alpha) || length(link_alpha) != 1 ||
+      is.na(link_alpha) || !is.finite(link_alpha) ||
+      link_alpha < 0 || link_alpha > 1) {
+    stop("`link_alpha` must be one number between 0 and 1.", call. = FALSE)
+  }
+
+  if (!is.null(bootstrap_threshold) &&
+      (!is.numeric(bootstrap_threshold) || length(bootstrap_threshold) != 1 ||
+       is.na(bootstrap_threshold) || !is.finite(bootstrap_threshold))) {
+    stop("`bootstrap_threshold` must be NULL or one finite number.", call. = FALSE)
+  }
+
+  if (!is.character(bootstrap_column) || length(bootstrap_column) != 1 ||
+      is.na(bootstrap_column) || !nzchar(bootstrap_column)) {
+    stop("`bootstrap_column` must be one non-empty column name.", call. = FALSE)
+  }
+
+  if (!is.character(bootstrap_symbol) || length(bootstrap_symbol) != 1 ||
+      is.na(bootstrap_symbol)) {
+    stop("`bootstrap_symbol` must be one character value.", call. = FALSE)
+  }
+
+  if (!is.numeric(bootstrap_size) || length(bootstrap_size) != 1 ||
+      is.na(bootstrap_size) || !is.finite(bootstrap_size) || bootstrap_size < 0) {
+    stop("`bootstrap_size` must be one finite, non-negative number.", call. = FALSE)
+  }
+
+  if (!is.numeric(bootstrap_x_offset) || length(bootstrap_x_offset) != 1 ||
+      is.na(bootstrap_x_offset) || !is.finite(bootstrap_x_offset)) {
+    stop("`bootstrap_x_offset` must be one finite number.", call. = FALSE)
+  }
+
+  if (!is.numeric(bootstrap_y_offset) || length(bootstrap_y_offset) != 1 ||
+      is.na(bootstrap_y_offset) || !is.finite(bootstrap_y_offset)) {
+    stop("`bootstrap_y_offset` must be one finite number.", call. = FALSE)
+  }
   
   # Remove treescales from the trees
   remove_treescale <- function(tree) {
@@ -88,9 +190,63 @@ common.tanglegram <- function(tree1, tree2, column, tip_column, sampletypecolors
   
   # Draw cophylogeny
   pp <- tree1 + 
-    geom_tippoint(aes(x = x, y = y, color=.data[[tip_col_name]])) +
+    geom_tippoint(aes(x = x + tip_point_offset, y = y,
+                      color = .data[[tip_col_name]])) +
     geom_tree(data=d2, layout = "dendrogram") + 
-    geom_tippoint(data = d2, aes(x = x-0.005, y = y, color=.data[[tip_col_name]]))
+    geom_tippoint(data = d2,
+                  aes(x = x - tip_point_offset, y = y,
+                      color = .data[[tip_col_name]]))
+
+  # Newick bootstrap values are represented as internal-node labels by
+  # ape::read.tree(). Convert them to numeric only for threshold comparison;
+  # non-numeric internal labels are left unmarked.
+  bootstrap_nodes <- NULL
+  if (!is.null(bootstrap_threshold)) {
+    missing_support_column <- vapply(
+      list(tree1 = d1, tree2 = d2),
+      function(d) !bootstrap_column %in% names(d),
+      logical(1)
+    )
+
+    if (any(missing_support_column)) {
+      stop(
+        sprintf(
+          "Bootstrap column `%s` is missing from %s.",
+          bootstrap_column,
+          paste(names(missing_support_column)[missing_support_column], collapse = " and ")
+        ),
+        call. = FALSE
+      )
+    }
+
+    bootstrap_nodes <- dplyr::bind_rows(d1, d2)
+    bootstrap_support <- suppressWarnings(
+      as.numeric(as.character(bootstrap_nodes[[bootstrap_column]]))
+    )
+    bootstrap_nodes <- bootstrap_nodes[
+      !bootstrap_nodes$isTip &
+        !is.na(bootstrap_support) &
+        bootstrap_support >= bootstrap_threshold,
+      ,
+      drop = FALSE
+    ]
+
+    if (nrow(bootstrap_nodes) > 0) {
+      bootstrap_nodes$.bootstrap_symbol <- bootstrap_symbol
+      # Tree 2 has already been reflected in x, so its horizontal offset must
+      # have the opposite sign to preserve the mirror-image layout.
+      bootstrap_nodes$.bootstrap_x <- bootstrap_nodes$x +
+        ifelse(bootstrap_nodes$tree == "t1", bootstrap_x_offset,
+               -bootstrap_x_offset)
+      bootstrap_nodes$.bootstrap_y <- bootstrap_nodes$y + bootstrap_y_offset
+    }
+  }
+
+  # Apply an optional manual scale to tip points. This scale must be added
+  # before new_scale_color(), which starts the independent line-color scale.
+  if (!is.null(tip_colors)) {
+    pp <- pp + scale_color_manual(values = tip_colors)
+  }
   
   # Merge tree data for tips only
   combined_data <- rbind(d1, d2) %>% filter(isTip == TRUE)
@@ -104,8 +260,8 @@ common.tanglegram <- function(tree1, tree2, column, tip_column, sampletypecolors
     group_by(label) %>%
     mutate(
       lab_x = case_when(
-        tree == "t1" ~ x + lab_pad + (nchar(label) * text_width_factor),
-        tree == "t2" ~ x - lab_pad - (nchar(label) * text_width_factor),
+        tree == "t1" ~ x + left_lab_pad + (nchar(label) * text_width_factor),
+        tree == "t2" ~ x - right_lab_pad - (nchar(label) * text_width_factor),
         TRUE ~ x
       )
     ) %>%
@@ -121,15 +277,34 @@ common.tanglegram <- function(tree1, tree2, column, tip_column, sampletypecolors
         group = label,
         color = .data[[column]]
       ),
-      data = combined_data, 
-      alpha = 0.4
+      data = combined_data,
+      linewidth = link_linewidth,
+      alpha = link_alpha
     )
   
-  # Apply custom or default colors
-  if (missing(sampletypecolors) || is.null(sampletypecolors)) {
+  # Resolve the new line-color argument while retaining sampletypecolors for
+  # backward compatibility. Treat its historical default (NA) as unspecified.
+  legacy_colors_supplied <- !missing(sampletypecolors) &&
+    !is.null(sampletypecolors) &&
+    !(length(sampletypecolors) == 1 && is.na(sampletypecolors))
+
+  if (!is.null(link_colors) && legacy_colors_supplied) {
+    stop("Specify only one of `link_colors` and `sampletypecolors`.", call. = FALSE)
+  }
+
+  resolved_link_colors <- if (!is.null(link_colors)) {
+    link_colors
+  } else if (legacy_colors_supplied) {
+    sampletypecolors
+  } else {
+    NULL
+  }
+
+  # Apply custom or default connecting-line colors
+  if (is.null(resolved_link_colors)) {
     pp <- pp + scale_color_viridis_d(option="turbo")   
   } else {
-    pp <- pp + scale_color_manual(values = sampletypecolors) 
+    pp <- pp + scale_color_manual(values = resolved_link_colors)
   }
   
   # Optionally show tip labels for tree 2
@@ -140,6 +315,20 @@ common.tanglegram <- function(tree1, tree2, column, tip_column, sampletypecolors
         size = t2_tiplab_size,
         data = d2,
         hjust = 1
+      )
+  }
+
+  # Draw support symbols last so tree and connecting-line layers do not cover
+  # them.
+  if (!is.null(bootstrap_nodes) && nrow(bootstrap_nodes) > 0) {
+    pp <- pp +
+      geom_text(
+        data = bootstrap_nodes,
+        aes(x = .data$.bootstrap_x, y = .data$.bootstrap_y,
+            label = .data$.bootstrap_symbol),
+        inherit.aes = FALSE,
+        size = bootstrap_size,
+        color = bootstrap_color
       )
   }
   

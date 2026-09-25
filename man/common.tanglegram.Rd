@@ -17,7 +17,21 @@ common.tanglegram(
   text_width_factor = NULL,
   tiplab = FALSE,
   t2_tiplab_size = 3,
-  t2_tiplab_pad = 0
+  t2_tiplab_pad = 0,
+  link_colors = NULL,
+  tip_colors = NULL,
+  link_linewidth = 0.5,
+  link_alpha = 0.4,
+  bootstrap_threshold = NULL,
+  bootstrap_column = "label",
+  bootstrap_symbol = "*",
+  bootstrap_size = 4,
+  bootstrap_color = "black",
+  bootstrap_x_offset = 0,
+  bootstrap_y_offset = 0,
+  left_lab_pad = NULL,
+  right_lab_pad = NULL,
+  tip_point_offset = 0
 )
 }
 \arguments{
@@ -29,7 +43,44 @@ common.tanglegram(
 
 \item{tip_column}{Optional. The column from the meta data.frame used to color the tip points of the trees. Defaults to `column`.}
 
-\item{sampletypecolors}{Named vector where names should correspond to the sample types, and the values are their associated colors.}
+\item{sampletypecolors}{Backward-compatible alias for \code{link_colors}. A named
+vector where names correspond to the categories in \code{column} and values are
+colors. Existing calls using this argument continue to work.}
+
+\item{link_colors}{Optional named vector used to manually color connecting
+lines. Names must correspond to categories in \code{column}.}
+
+\item{tip_colors}{Optional named vector used to manually color tip points.
+Names must correspond to categories in \code{tip_column}.}
+
+\item{tip_point_offset}{Horizontal offset of tip points from their branch
+endpoints, mirrored between trees. Positive values move points toward the
+center (right on tree 1, left on tree 2). Default 0.}
+
+\item{link_linewidth}{Width of the connecting lines. Default 0.5.}
+
+\item{link_alpha}{Opacity of the connecting lines, between 0 (transparent)
+and 1 (opaque). Default 0.4.}
+
+\item{bootstrap_threshold}{Optional numeric support threshold. When supplied,
+internal nodes in both trees whose support is greater than or equal to this
+value are marked. For percentage bootstrap values, use e.g. 95.}
+
+\item{bootstrap_column}{Column containing node-support values. Newick bootstrap
+values read by \code{ape::read.tree()} are normally stored in \code{label}.}
+
+\item{bootstrap_symbol}{Character used to mark supported nodes. Default \code{"*"}.}
+
+\item{bootstrap_size}{Text size of the bootstrap symbol. Default 4.}
+
+\item{bootstrap_color}{Color of the bootstrap symbol. Default \code{"black"}.}
+
+\item{bootstrap_x_offset}{Horizontal offset of bootstrap symbols in plot
+coordinates, mirrored between the two trees. Positive values move symbols
+toward the tips (right on tree 1, left on tree 2). Default 0.}
+
+\item{bootstrap_y_offset}{Vertical offset of bootstrap symbols in plot
+coordinates. Positive values move symbols upward. Default 0.}
 
 \item{t2_pad}{Tree 2 padding. Change this to adjust position of Tree 2. Default 0.5.}
 
@@ -37,7 +88,12 @@ common.tanglegram(
 
 \item{t2_y_pos}{If Tree 2 is different size than Tree 1, then use this to adjust their relative positions.}
 
-\item{lab_pad}{Add space after/before the tip-labels. It makes equidistant changes to the line x-positions. Default 0.05.}
+\item{lab_pad}{Common horizontal spacing added to both connecting-line
+endpoints beyond the estimated tip-label width. Default 0.05.}
+
+\item{left_lab_pad}{Optional spacing for tree 1 (left), overriding \code{lab_pad}.}
+
+\item{right_lab_pad}{Optional spacing for tree 2 (right), overriding \code{lab_pad}.}
 
 \item{tiplab}{Boolean. Shows tip-labels of Tree 1. Default False. For showing tip-labels of Tree 1, add geom_tiplab() during defining the tree.}
 
@@ -67,9 +123,17 @@ tree1 <- ggtree(t1) \%<+\% meta
 t2 <- read.tree("tree2.nwk")
 tree2 <- ggtree(t2) \%<+\% meta
 
-# Make a named vector
-sampletypecolors <- c("hospital" = "#4E79A7", "terrestrial" = "#F28E2B", "animal" = "#E15759", "soil" = "#76B7B2")
-common.tanglegram(tree1, tree2, column_of_interest, tip_column = species, sampletypecolors, t2_pad=1, tiplab = T)
+# Make named vectors for connecting-line and tip-point colors
+link_colors <- c("hospital" = "#4E79A7", "terrestrial" = "#F28E2B",
+                 "animal" = "#E15759", "soil" = "#76B7B2")
+tip_colors <- c("species_a" = "#59A14F", "species_b" = "#EDC948")
+common.tanglegram(tree1, tree2, column_of_interest,
+                  tip_column = species, link_colors = link_colors,
+                  tip_colors = tip_colors, link_linewidth = 0.8,
+                  link_alpha = 0.7, bootstrap_threshold = 95,
+                  bootstrap_symbol = "*", bootstrap_size = 5,
+                  bootstrap_x_offset = 0.02, bootstrap_y_offset = 0.1,
+                  tip_point_offset = 0.01, t2_pad = 1, tiplab = TRUE)
 
 
 }
