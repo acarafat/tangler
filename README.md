@@ -4,9 +4,8 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/acarafat/tangler?label=Release)](https://github.com/acarafat/tangler/releases)
 [![GitHub issues](https://img.shields.io/github/issues/acarafat/tangler)](https://github.com/acarafat/tangler/issues)
 [![GitHub closed issues](https://img.shields.io/github/issues-closed/acarafat/tangler)](https://github.com/acarafat/tangler/issues?q=is%3Aissue+is%3Aclosed)
-[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/acarafat/tangler)](https://github.com/acarafat/tangler/pulls?q=is%3Apr+is%3Aclosed)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/acarafat/tangler)](https://github.com/acarafat/tangler/pulls?q=is%3Apr+is%3Aopen)
-
+[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/acarafat/tangler)](https://github.com/acarafat/tangler/pulls?q=is%3Apr+is%3Aclosed)
 
 A tanglegram is a representation of co-phylogeny where phylogenetic trees are linked by matching tips. This R package offers simple functions to draw beautiful, publication-ready tanglegrams based on `ggtree`. 
 
